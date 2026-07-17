@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CredAI - Smart Alternative Credit Intelligence Platform</title>
+  <meta name="description" content="AI-powered alternative credit assessment platform that evaluates repayment ability using verified financial transaction data. Financial Trust Beyond Credit Scores.">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="bg-ambient"></div>
+  
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: -4px;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>CredAI</span>
+      </div>
+      <nav>
+        <ul>
+          <li class="active"><button data-target="landing"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="10" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Overview</button></li>
+          <li><button data-target="borrower"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Borrower Portal</button></li>
+          <li><button data-target="underwriter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> Underwriter Panel</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <!-- ======================================================== -->
+    <!-- SECTION 1: OVERVIEW / LANDING -->
+    <!-- ======================================================== -->
+    <section id="section-landing" class="tab-content active">
+      <div class="hero-section">
+        <span class="hero-tag">Financial Trust Beyond Credit Scores</span>
+        <h1>Smart Alternative Credit Intelligence for the Underserved</h1>
+        <p>Evaluate creditworthiness using verified bank transactions, UPI payments, GST records, utility bills, and digital footprints — instead of traditional credit bureau scores.</p>
+        <button class="btn btn-primary" onclick="document.querySelector('[data-target=\'borrower\']').click();">
+          Launch Borrower Portal <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </div>
+
+      <div class="persona-grid">
+        <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Select a Borrower Profile to Simulate</h2>
+        <div class="grid-6">
+          <!-- Ramesh Vendor -->
+          <div class="glass-card persona-card vendor glow-secondary" data-id="vendor">
+            <div class="icon-wrap">☕</div>
+            <div class="subtitle">Street Vendor</div>
+            <h3>Ramesh Kumar</h3>
+            <p>Runs a masala tea stall in Old Delhi. Processes high daily volumes of micro UPI sales but has zero credit history.</p>
+            <div class="meta-badges">
+              <span class="badge">UPI QR Inflow</span>
+              <span class="badge">No CIBIL File</span>
+            </div>
+          </div>
+          
+          <!-- Sunita Kirana -->
+          <div class="glass-card persona-card kirana glow-primary" data-id="kirana">
+            <div class="icon-wrap">🛒</div>
+            <div class="subtitle">Grocery Store</div>
+            <h3>Sunita Devi</h3>
+            <p>Manages a neighborhood grocery shop in Hyderabad. Regular bank statement cash flows and distributor invoices.</p>
+            <div class="meta-badges">
+              <span class="badge">GST Registered</span>
+              <span class="badge">Supplier Logs</span>
+            </div>
+          </div>
+          
+          <!-- Vikram Gig Worker -->
+          <div class="glass-card persona-card gig glow-primary" data-id="gig">
+            <div class="icon-wrap">🚖</div>
+            <div class="subtitle">Gig Worker</div>
+            <h3>Vikram Rathore</h3>
+            <p>Rideshare taxi fleet driver in Bengaluru. Regular weekly aggregator payouts, high ratings, and fixed fuel costs.</p>
+            <div class="meta-badges">
+              <span class="badge">Platform Payouts</span>
+              <span class="badge">Vehicle EMI</span>
+            </div>
+          </div>
+          
+          <!-- Harish Farmer -->
+          <div class="glass-card persona-card farmer glow-secondary" data-id="farmer">
+            <div class="icon-wrap">🌾</div>
+            <div class="subtitle">Agriculture</div>
+            <h3>Harish Patel</h3>
+            <p>Cultivates organic cash crops in Gujarat. Highly seasonal income post-harvest matched with government crop subsidies.</p>
+            <div class="meta-badges">
+              <span class="badge">e-NAM Receipts</span>
+              <span class="badge">Seasonal Cash</span>
+            </div>
+          </div>
+          
+          <!-- Pooja Boutique -->
+          <div class="glass-card persona-card boutique glow-primary" data-id="boutique">
+            <div class="icon-wrap">🧵</div>
+            <div class="subtitle">Micro-Retail</div>
+            <h3>Pooja Sharma</h3>
+            <p>Owns a custom designer boutique in Mumbai. Active digital invoice settlement and quarterly tax filings.</p>
+            <div class="meta-badges">
+              <span class="badge">Invoice Trails</span>
+              <span class="badge">Social Channel</span>
+            </div>
+          </div>
+
+          <!-- Aditya Freelancer -->
+          <div class="glass-card persona-card freelancer glow-primary" data-id="freelancer">
+            <div class="icon-wrap">💻</div>
+            <div class="subtitle">Freelancer</div>
+            <h3>Aditya Mehta</h3>
+            <p>Full-stack web developer in Pune. Irregular project-based payments via UPI and bank transfers with growing digital income.</p>
+            <div class="meta-badges">
+              <span class="badge">Project Payouts</span>
+              <span class="badge">GST Filed</span>
+            </div>
+          </div>
+
+          <!-- Custom Card -->
+          <div class="glass-card persona-card custom-builder-trigger glow-secondary" id="card-custom-builder" style="border: 1px dashed var(--secondary);">
+            <div class="icon-wrap">➕</div>
+            <div class="subtitle">Self Assessment</div>
+            <h3>Build Custom Profile</h3>
+            <p>Enter your own sales volume, banking logs, and digital ratios to calculate your personalized CredAI Score.</p>
+            <div class="meta-badges">
+              <span class="badge" style="border-color: var(--secondary); color: var(--secondary);">Interactive Builder</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Profile Builder Form Card (Hidden by default) -->
+        <div class="glass-card" id="custom-builder-form" style="display: none; margin-top: 2.5rem; border-color: var(--secondary); animation: fadeIn 0.4s ease-out;">
+          <h3 style="font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--secondary); display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-heading); font-weight: 700;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            Build Your Custom Business Profile
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">Fill out your business parameters below to calculate a custom CredAI Score and get matched with collaborated banks.</p>
+          
+          <div class="grid-3" style="margin-bottom: 1.5rem;">
+            <div class="slider-group">
+              <label class="slider-label" style="font-weight:600; margin-bottom:0.25rem;">Business / Profile Name</label>
+              <input type="text" id="cust-name" value="Ganesh Stores" style="background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; padding:0.6rem 0.8rem; color:var(--text-main); font-family:var(--font-body); outline:none; font-size: 0.9rem;">
+            </div>
+            
+            <div class="slider-group">
+              <label class="slider-label" style="font-weight:600; margin-bottom:0.25rem;">Business Sector</label>
+              <select id="cust-sector" style="background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; padding:0.6rem 0.8rem; color:var(--text-main); font-family:var(--font-body); outline:none; cursor:pointer; font-size: 0.9rem; height: 40px;">
+                <option value="vendor">Street Vendor (Micro-Retail)</option>
+                <option value="kirana" selected>Kirana Store / Retail Grocery</option>
+                <option value="gig">Gig Worker (Delivery/Cab)</option>
+                <option value="farmer">Agriculture / Farming</option>
+                <option value="boutique">Micro-Business (Boutique/Apparel)</option>
+                <option value="freelancer">Freelancer / Self-Employed</option>
+              </select>
+            </div>
+
+            <div class="slider-group">
+              <label class="slider-label" style="font-weight:600; margin-bottom:0.25rem;">Utility Bills Grade</label>
+              <select id="cust-utility" style="background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; padding:0.6rem 0.8rem; color:var(--text-main); font-family:var(--font-body); outline:none; cursor:pointer; font-size: 0.9rem; height: 40px;">
+                <option value="A+">Excellent (Grade A+)</option>
+                <option value="A">Good (Grade A)</option>
+                <option value="B+">Average (Grade B+)</option>
+                <option value="B">Below Average (Grade B)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom: 2rem;">
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Monthly Sales / Inflow</span>
+                <span class="slider-value" id="cust-sales-val">₹80,000</span>
+              </div>
+              <input type="range" id="cust-sales" class="custom-slider" min="10000" max="400000" step="5000" value="80000">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">UPI QR Sales Ratio</span>
+                <span class="slider-value" id="cust-upi-val">80%</span>
+              </div>
+              <input type="range" id="cust-upi" class="custom-slider secondary-slider" min="10" max="100" step="5" value="80">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Average Daily Balance (ADB)</span>
+                <span class="slider-value" id="cust-adb-val">₹12,000</span>
+              </div>
+              <input type="range" id="cust-adb" class="custom-slider warning-slider" min="500" max="50000" step="500" value="12000">
+            </div>
+          </div>
+
+          <div class="decision-bar" style="justify-content: flex-end; gap: 1rem;">
+            <button class="btn btn-secondary" id="btn-cancel-custom">Cancel</button>
+            <button class="btn btn-primary" id="btn-submit-custom">Generate Custom Score</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 2: BORROWER PORTAL -->
+    <!-- ======================================================== -->
+    <section id="section-borrower" class="tab-content">
+      <div class="profile-banner">
+        <div class="profile-info">
+          <div id="bor-avatar-wrap" class="profile-avatar">
+            <span id="bor-avatar"></span>
+          </div>
+          <div class="profile-text">
+            <h2 id="bor-name">Applicant Name</h2>
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin: 0.2rem 0;">
+              <span id="bor-role" class="badge" style="background: var(--primary-glow); color: #c7d2fe; border-color: var(--primary);">Role</span>
+              <span id="bor-business" style="font-size: 0.9rem; font-weight: 500;">Business Name</span>
+            </div>
+            <p id="bor-desc" style="max-width: 800px; line-height: 1.4;"></p>
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="document.querySelector('[data-target=\'landing\']').click();">
+          Change Persona
+        </button>
+      </div>
+
+      <div class="grid-3" style="grid-template-columns: 1fr 2fr; margin-bottom: 2rem;">
+        
+        <!-- Left Side: Scoring Circle & Optimizer Recommendations -->
+        <div style="display: flex; flex-direction: column; gap: 1.75rem;">
+          <!-- Pragati Credit Score Gauge -->
+          <div class="glass-card" style="text-align: center;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">CredAI Alternative Score</h3>
+            <div class="score-circle-container">
+              <svg class="score-svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--secondary)" />
+                    <stop offset="100%" stop-color="var(--primary)" />
+                  </linearGradient>
+                </defs>
+                <circle class="score-bg-circle" cx="100" cy="100" r="90" />
+                <circle class="score-fill-circle" cx="100" cy="100" r="90" />
+                <!-- Projected Dotted Circle for optimizer overlay -->
+                <circle class="score-projected-circle" cx="100" cy="100" r="90" style="fill: none; stroke: var(--secondary); stroke-width: 14; stroke-linecap: round; stroke-dasharray: 4, 8; stroke-dashoffset: 565.48; opacity: 0; transition: stroke-dashoffset 0.4s ease-out, opacity 0.3s;" />
+              </svg>
+              <div class="score-value-text">
+                <span class="score-num" id="score-number">300</span>
+                <span class="score-label">CredAI Score</span>
+                <span id="score-tier" class="score-tier">Good</span>
+              </div>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-dim); margin-top: 1rem;">Calculated dynamically from verified transactions & digital parameters.</p>
+          </div>
+          
+          <!-- Loan Eligibility Calculator -->
+          <div class="glass-card">
+            <h3 style="margin-bottom: 1.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Custom Loan Terms
+            </h3>
+            
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Capital Required</span>
+                <span class="slider-value" id="loan-amount-val">₹15,000</span>
+              </div>
+              <input type="range" id="loan-amount" class="custom-slider" min="5000" max="50000" step="1000" value="15000">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Repayment Tenure</span>
+                <span class="slider-value" id="loan-tenure-val">6 Months</span>
+              </div>
+              <input type="range" id="loan-tenure" class="custom-slider secondary-slider" min="3" max="24" step="3" value="12">
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-muted); padding: 1rem; border-radius: 8px; display: flex; flex-direction: column; gap: 0.85rem; margin-top: 1rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span style="color: var(--text-muted);">Max Credit Limit:</span>
+                <strong style="color: var(--text-main);" id="calc-eligible-cap">₹35,000</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span style="color: var(--text-muted);">Offered Rate:</span>
+                <strong style="color: var(--secondary);" id="calc-interest-rate">14.5%</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span style="color: var(--text-muted);">Repayment Mode:</span>
+                <strong style="color: var(--text-main);" id="calc-repay-mode">Daily UPI splits</strong>
+              </div>
+              <hr style="border: 0; border-top: 1px solid var(--border-muted);">
+              <div id="calc-emi-wrap" style="text-align: center; padding: 0.25rem 0;">
+                <!-- Filled dynamically by app.js -->
+              </div>
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1.25rem;" onclick="showToast('Loan Application submitted to Underwriter queue.', 'success');">
+              Apply For Capital
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Side: Subscores, uploads, flow charts & transaction history -->
+        <div style="display: flex; flex-direction: column; gap: 1.75rem;">
+          
+          <!-- Subscores and Upload card -->
+          <div class="grid-2">
+            <!-- Alternative Parameters -->
+            <div class="glass-card">
+              <h3 style="margin-bottom: 1.25rem; font-size: 1.25rem;">Scoring Metrics</h3>
+              <div class="subscores-container">
+                <!-- Volume -->
+                <div class="subscore-row">
+                  <div class="subscore-header">
+                    <span class="subscore-name">Transaction Volume</span>
+                    <span class="subscore-value" id="score-vol-val">80/100</span>
+                  </div>
+                  <div class="subscore-bar-bg">
+                    <div id="score-vol-fill" class="subscore-bar-fill" style="background: var(--primary);"></div>
+                  </div>
+                </div>
+                <!-- Stability -->
+                <div class="subscore-row">
+                  <div class="subscore-header">
+                    <span class="subscore-name">Cash Flow Stability</span>
+                    <span class="subscore-value" id="score-stab-val">85/100</span>
+                  </div>
+                  <div class="subscore-bar-bg">
+                    <div id="score-stab-fill" class="subscore-bar-fill" style="background: var(--secondary);"></div>
+                  </div>
+                </div>
+                <!-- Growth -->
+                <div class="subscore-row">
+                  <div class="subscore-header">
+                    <span class="subscore-name">Business Velocity</span>
+                    <span class="subscore-value" id="score-perf-val">90/100</span>
+                  </div>
+                  <div class="subscore-bar-bg">
+                    <div id="score-perf-fill" class="subscore-bar-fill" style="background: var(--success);"></div>
+                  </div>
+                </div>
+                <!-- Discipline -->
+                <div class="subscore-row">
+                  <div class="subscore-header">
+                    <span class="subscore-name">Financial Buffer (ADB)</span>
+                    <span class="subscore-value" id="score-disc-val">75/100</span>
+                  </div>
+                  <div class="subscore-bar-bg">
+                    <div id="score-disc-fill" class="subscore-bar-fill" style="background: var(--warning);"></div>
+                  </div>
+                </div>
+                <!-- Digital -->
+                <div class="subscore-row">
+                  <div class="subscore-header">
+                    <span class="subscore-name">Digital Integration</span>
+                    <span class="subscore-value" id="score-dig-val">92/100</span>
+                  </div>
+                  <div class="subscore-bar-bg">
+                    <div id="score-dig-fill" class="subscore-bar-fill" style="background: var(--secondary);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Upload Simulation Area -->
+            <div class="glass-card" style="display: flex; flex-direction: column;">
+              <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">Alternate Data Consent</h3>
+              <div id="upload-zone" class="upload-zone">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p>Upload Financial Statement</p>
+                <span>Drag & Drop bank statements, GST or invoice files.</span>
+              </div>
+              <div class="upload-samples">
+                <p>Simulate Uploading Files:</p>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="sample-file-btn" data-file="healthy_kirana">
+                    <span>Sunita_Devi_Healthy_Statement.json</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </button>
+                  <button class="sample-file-btn" data-file="stressed_kirana">
+                    <span>Sunita_Devi_Stressed_Shocks.json</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </button>
+                  <button class="sample-file-btn" data-file="erratic_gig">
+                    <span>Vikram_Rathore_Aggregator_Logs.json</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Cash Inflow Chart -->
+          <div class="glass-card">
+            <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">Cash Flow Analysis (Inflows vs Outflows)</h3>
+            <div style="height: 200px; position: relative;">
+              <canvas id="bor-flow-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Panels: Inflow Logs & Optimization Recommendations -->
+      <div class="grid-2">
+        <!-- Gamified Score Optimizer Checklist -->
+        <div class="glass-card">
+          <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--secondary); font-family: var(--font-heading); font-weight: 700;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Gamified Score Optimizer
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.25rem;">Toggle recommendations below to see how financial improvements project onto your credit score.</p>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;" id="optimizer-checklist">
+            <!-- Dynamically populated toggles by app.js -->
+          </div>
+        </div>
+
+        <!-- Transaction Log table -->
+        <div class="glass-card">
+          <h3 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            Recent Transaction Logs (Verified UPI & Bank)
+          </h3>
+          <div class="tx-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="bor-tx-body">
+                <!-- Filled dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Inclusion Index & Expense Analysis -->
+      <div class="grid-2" style="margin-top: 1.75rem;">
+        <!-- Financial Inclusion Index Radar -->
+        <div class="glass-card">
+          <h3 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: var(--secondary);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Financial Inclusion Index
+          </h3>
+          <div style="height: 280px; position: relative;">
+            <canvas id="fii-radar-chart"></canvas>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.75rem;">7-dimension holistic assessment combining income, cash flow, savings, growth, discipline, fraud risk, and digital activity.</p>
+        </div>
+
+        <!-- Expense Behavior Analysis -->
+        <div class="glass-card">
+          <h3 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: var(--primary);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+            Expense Behavior Analysis
+          </h3>
+          <div style="height: 220px; position: relative;">
+            <canvas id="expense-donut-chart"></canvas>
+          </div>
+          <div id="expense-summary" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
+            <!-- Filled dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Loan Recommendation Engine -->
+      <div class="glass-card" id="loan-rec-card" style="margin-top: 1.75rem; border-color: var(--secondary); background: linear-gradient(135deg, rgba(20, 184, 166, 0.05), rgba(99, 102, 241, 0.03));">
+        <h3 style="font-size: 1.35rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--secondary); font-family: var(--font-heading); font-weight: 700;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          AI Loan Recommendation Engine
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">Based on your CredAI Score and verified financial data, our AI recommends the following personalized loan terms.</p>
+        <div class="grid-5" style="grid-template-columns: repeat(5, 1fr); gap: 1.25rem;">
+          <div class="stat-box" style="border-color: var(--secondary);">
+            <h5>Eligible Loan</h5>
+            <div class="stat-value" id="rec-amount" style="color: var(--secondary);">₹0</div>
+          </div>
+          <div class="stat-box">
+            <h5>Interest Rate</h5>
+            <div class="stat-value" id="rec-interest">0%</div>
+          </div>
+          <div class="stat-box">
+            <h5>Suggested EMI</h5>
+            <div class="stat-value" id="rec-emi">₹0</div>
+          </div>
+          <div class="stat-box">
+            <h5>Loan Duration</h5>
+            <div class="stat-value" id="rec-duration">0 Mo</div>
+          </div>
+          <div class="stat-box" style="border-color: var(--success);">
+            <h5>AI Confidence</h5>
+            <div class="stat-value" id="rec-confidence" style="color: var(--success);">0%</div>
+            <div style="margin-top: 0.5rem; height: 4px; background: rgba(255,255,255,0.05); border-radius: 9999px; overflow: hidden;">
+              <div id="rec-confidence-bar" style="height: 100%; width: 0%; background: var(--success); border-radius: 9999px; transition: width 1s ease;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Collaboration Portal -->
+      <div class="glass-card" style="margin-top: 1.75rem;">
+        <h3 style="font-size: 1.35rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--secondary); font-family: var(--font-heading); font-weight: 700;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: -2px;"><path d="M3 21h18"/><path d="M19 21v-4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4"/><path d="M19 4H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Z"/><path d="M12 11v4"/></svg>
+          Bank Collaboration & Pre-Sanction Hub
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">The following collaborated banking partners have pre-evaluated your CredAI Score. Compare custom rates and submit applications directly.</p>
+        
+        <div id="bank-offers-container" class="grid-3" style="grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+          <!-- Loaded dynamically from API -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 3: UNDERWRITER PANEL -->
+    <!-- ======================================================== -->
+    <section id="section-underwriter" class="tab-content">
+      <div class="underwriter-grid">
+        
+        <!-- Sidebar: Active Applicants list -->
+        <div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Applicant Queue</h3>
+          <div id="underwriter-applicants" class="applicant-list">
+            <!-- Filled dynamically by app.js -->
+          </div>
+        </div>
+
+        <!-- Main Workspace: Risk stress testing & AI explaining -->
+        <div style="display: flex; flex-direction: column; gap: 1.75rem;">
+          <!-- Target Header Banner -->
+          <div class="profile-banner" style="background: var(--bg-surface); margin-bottom: 0;">
+            <div class="profile-info">
+              <div id="und-avatar-wrap" class="profile-avatar">
+                <span id="und-avatar"></span>
+              </div>
+              <div class="profile-text">
+                <h2 id="und-name">Applicant Name</h2>
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.2rem 0;">
+                  <span id="und-role" class="badge">Role</span>
+                  <span id="und-bank" class="badge" style="background: var(--secondary-glow); color: var(--secondary); border-color: var(--secondary); font-weight: 600;">Bank</span>
+                  <span id="und-business" style="font-size: 0.9rem; font-weight: 500;">Business Name</span>
+                  <span id="und-location" style="font-size: 0.8rem; color: var(--text-dim);">Location</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Key Risk Metrics row -->
+          <div class="grid-5" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;">
+            <div class="stat-box">
+              <h5>Avg Inflow / month</h5>
+              <div class="stat-value" id="stat-inflow">₹0</div>
+            </div>
+            <div class="stat-box">
+              <h5>Avg Daily Balance</h5>
+              <div class="stat-value" id="stat-adb">₹0</div>
+            </div>
+            <div class="stat-box">
+              <h5>Inflow Consistency</h5>
+              <div class="stat-value" id="stat-stability">0%</div>
+            </div>
+            <div class="stat-box">
+              <h5>MoM Sales Growth</h5>
+              <div class="stat-value" id="stat-growth">0%</div>
+            </div>
+            <div class="stat-box" id="fraud-risk-box">
+              <h5>Fraud Risk</h5>
+              <div class="stat-value" id="stat-fraud" style="color: var(--success);">Low</div>
+            </div>
+          </div>
+
+          <!-- Mid Section: SHAP and Forecast Charts -->
+          <div class="grid-2">
+            <!-- SHAP/LIME Explainable AI Panel -->
+            <div class="glass-card">
+              <h3 style="margin-bottom: 1.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                AI Model Explanation (Feature Weights)
+              </h3>
+              <div style="height: 250px; position: relative;">
+                <canvas id="und-shap-chart"></canvas>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: 1rem;">Calculated using game-theoretic SHAP attributions. Indicates point adjustments relative to average borrower baselines.</p>
+            </div>
+            
+            <!-- Cash Flow Forecast Projection -->
+            <div class="glass-card">
+              <h3 style="margin-bottom: 1.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 12-4-4-4 4-4-4-4 4"/></svg>
+                Stressed Forecast Projection
+              </h3>
+              <div style="height: 250px; position: relative;">
+                <canvas id="und-forecast-chart"></canvas>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: 1rem;">Projections based on historical growth trend. Stressed forecast shows the direct impact of operating shocks.</p>
+            </div>
+          </div>
+
+          <!-- Bottom Section: Underwriter Stress Test Sliders & Repayment comparison -->
+          <div class="glass-card">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+              Interactive Cash Flow Stress-Test Simulator
+            </h3>
+            <div class="grid-3" style="grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+              <!-- Sliders -->
+              <div style="display: flex; flex-direction: column; justify-content: center;">
+                <div class="slider-group">
+                  <div class="slider-header">
+                    <span class="slider-label" style="color: var(--danger);">Inflow Revenue Deficit</span>
+                    <span class="slider-value" id="stress-rev-val" style="color: var(--danger);">0%</span>
+                  </div>
+                  <input type="range" id="stress-rev-shock" class="custom-slider danger-slider" min="0" max="50" step="5" value="0">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-header">
+                    <span class="slider-label" style="color: var(--warning);">Supplier Cost Inflation</span>
+                    <span class="slider-value" id="stress-cost-val" style="color: var(--warning);">0%</span>
+                  </div>
+                  <input type="range" id="stress-cost-shock" class="custom-slider warning-slider" min="0" max="30" step="5" value="0">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-header">
+                    <span class="slider-label" style="color: var(--secondary);">Income Volatility Spike</span>
+                    <span class="slider-value" id="stress-vol-val" style="color: var(--secondary);">0%</span>
+                  </div>
+                  <input type="range" id="stress-vol-shock" class="custom-slider secondary-slider" min="0" max="100" step="10" value="0">
+                </div>
+              </div>
+
+              <!-- Shock Calculations Box -->
+              <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-muted); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                  <!-- Stressed Score -->
+                  <div class="stat-box" style="background: rgba(255,255,255,0.01); padding: 0.75rem;">
+                    <h5>Stressed Score</h5>
+                    <div class="stat-value" id="und-score-stressed" style="font-size: 1.6rem; color: var(--secondary);">800</div>
+                    <span id="und-score-diff" style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500;">(No change)</span>
+                  </div>
+                  <!-- Debt service DSCR -->
+                  <div class="stat-box" style="background: rgba(255,255,255,0.01); padding: 0.75rem;">
+                    <h5>Debt Margin</h5>
+                    <div class="stat-value" id="und-dscr" style="font-size: 1.6rem;">1.45x</div>
+                    <span style="font-size: 0.72rem; color: var(--text-dim);">(FCF vs EMI)</span>
+                  </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding: 0.6rem; border-radius: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-muted);">
+                  <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Risk Status:</span>
+                  <div class="stat-box risk-low" style="padding: 0.2rem 0.75rem; border: none; border-radius: 6px;">
+                    <span class="stat-value" id="und-risk-status" style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Low</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Smart AI Risk Commentary Box -->
+              <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid var(--border-glow); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <div>
+                  <h5 style="color: var(--secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.4rem; font-family: var(--font-heading);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-1px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Smart AI Risk Report
+                  </h5>
+                  <p id="und-ai-commentary" style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin-top: 0.5rem;">
+                    Pre-evaluating cash-flow logs...
+                  </p>
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.25rem; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 0.5rem; margin-top: 0.5rem;">
+                  <span>Confidence Index: 92%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Repayment Schedule Comparisons -->
+          <div class="glass-card">
+            <h3 style="margin-bottom: 1rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Alternative Repayment Model (Daily Siphoning vs. Standard EMI)
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: center;">
+              <!-- Detail Cards -->
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="repayment-card">
+                  <h4>Traditional Monthly EMI</h4>
+                  <ul>
+                    <li>Monthly Debits: <span id="und-emi-traditional">Debited Monthly</span></li>
+                    <li>Default Risk: <span>High (if balance lacks at month-end)</span></li>
+                    <li>Stress tolerance: <span>Low</span></li>
+                  </ul>
+                </div>
+                <div class="repayment-card active-rep">
+                  <h4>Daily UPI QR Siphoning</h4>
+                  <ul>
+                    <li>Deductions: <span>Daily micro-splits (e.g. 5% of QR payments)</span></li>
+                    <li>Default Risk: <span>Very Low (matches real-time sales)</span></li>
+                    <li>Stress tolerance: <span>High (scales down if sales drop)</span></li>
+                  </ul>
+                </div>
+              </div>
+              
+              <!-- Repayment Graph -->
+              <div style="height: 250px; position: relative;">
+                <canvas id="und-repay-chart"></canvas>
+              </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(20, 184, 166, 0.05); border: 1px solid var(--secondary-glow); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h5 style="font-size: 0.9rem; color: var(--secondary); font-weight: 600;">Applicant Requesting Capital</h5>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem;">
+                  Requested: <strong style="color: var(--text-main);" id="und-repay-amount">₹15,000</strong> over <strong style="color: var(--text-main);" id="und-repay-tenure">6 Months</strong> for <em id="und-repay-purpose">"Inventory expansion"</em>.
+                </p>
+              </div>
+              <div class="decision-bar">
+                <button id="btn-reject" class="btn btn-secondary btn-danger">Reject</button>
+                <button id="btn-approve" class="btn btn-primary btn-success">Approve Loan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer style="border-top: 1px solid var(--border-muted); margin-top: 3rem; padding: 2.5rem 2rem; text-align: center;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+      <div style="display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.03); border: 1px solid var(--border-muted); padding: 0.4rem 0.8rem; border-radius: 9999px;">🔒 AES-256 Encrypted</span>
+        <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.03); border: 1px solid var(--border-muted); padding: 0.4rem 0.8rem; border-radius: 9999px;">🏛️ RBI AA Compliant</span>
+        <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.03); border: 1px solid var(--border-muted); padding: 0.4rem 0.8rem; border-radius: 9999px;">📋 DPDP Act 2023</span>
+        <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.03); border: 1px solid var(--border-muted); padding: 0.4rem 0.8rem; border-radius: 9999px;">🛡️ RBAC Protected</span>
+      </div>
+      <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 0.5rem;">CredAI — Smart Alternative Credit Intelligence Platform</p>
+      <p style="color: var(--text-dim); font-size: 0.72rem;">All data is collected only after customer consent through India's Account Aggregator (AA) Framework. Users can revoke data-sharing consent at any time.</p>
+    </div>
+  </footer>
+  
+  <script src="js/app.js"></script>
+</body>
+</html>
