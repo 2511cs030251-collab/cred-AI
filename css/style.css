@@ -1328,3 +1328,33 @@ footer {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+body.light-mode {
+  --bg-dark: #f0f4ff;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #e8eeff;
+  --bg-glass: rgba(240, 244, 255, 0.85);
+  --bg-glass-heavy: rgba(255, 255, 255, 0.97);
+  --border-muted: rgba(0, 0, 0, 0.1);
+  --border-glow: rgba(99, 102, 241, 0.2);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+}
+body.light-mode .bg-ambient::before {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.06) 0%, transparent 70%);
+}
+body.light-mode .bg-ambient::after {
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.05) 0%, transparent 70%);
+}
+body.light-mode header {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+body.light-mode .glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}

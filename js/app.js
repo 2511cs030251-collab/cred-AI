@@ -675,6 +675,7 @@ let underwriterApplications = [];
 let selectedApplication = null;
 let generatedTxCache = {};
 let isServerOnline = false; // Set to true if API server responds
+let currentTransactions = [];
 
 let navItems, sections;
 
@@ -809,14 +810,79 @@ async function initApp() {
   
   // Bind AI Pipeline Map flowchart clicks
   const flowNodes = document.querySelectorAll('.pipeline-node, .pipeline-node-special');
-  flowNodes.forEach(node => {
-    node.addEventListener('click', () => {
-      flowNodes.forEach(n => n.classList.remove('active'));
-      node.classList.add('active');
-      const step = node.getAttribute('data-node');
-      inspectPipelineStep(step);
+  if (flowNodes.length > 0) {
+    flowNodes.forEach(node => {
+      node.addEventListener('click', () => {
+        flowNodes.forEach(n => n.classList.remove('active'));
+        node.classList.add('active');
+        const step = node.getAttribute('data-node');
+        inspectPipelineStep(step);
+      });
     });
+  }
+
+  // Theme Toggle
+  const themeToggle = document.getElementById('theme-toggle');
+  const savedTheme = localStorage.getItem('credai_theme');
+  if (savedTheme === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-label').innerText = 'Dark'; }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.body.classList.toggle('light-mode');
+      document.getElementById('theme-label').innerText = isLight ? 'Dark' : 'Light';
+      localStorage.setItem('credai_theme', isLight ? 'light' : 'dark');
+    });
+  }
+
+  // EMI Calculator Modal
+  const emiInputs = ['emi-amount', 'emi-rate', 'emi-tenure'];
+  function computeEMI() {
+    const pEl = document.getElementById('emi-amount');
+    const rEl = document.getElementById('emi-rate');
+    const nEl = document.getElementById('emi-tenure');
+    if (!pEl || !rEl || !nEl) return;
+    const P = parseInt(pEl.value);
+    const R = parseFloat(rEl.value) / 100 / 12;
+    const N = parseInt(nEl.value);
+    document.getElementById('emi-amount-val').innerText = '₹' + P.toLocaleString('en-IN');
+    document.getElementById('emi-rate-val').innerText = rEl.value + '%';
+    document.getElementById('emi-tenure-val').innerText = N + ' Months';
+    let emi;
+    if (R === 0) emi = Math.round(P / N);
+    else emi = Math.round(P * R * Math.pow(1 + R, N) / (Math.pow(1 + R, N) - 1));
+    const total = emi * N;
+    const interest = total - P;
+    const daily = Math.round(total / (N * 30));
+    document.getElementById('emi-result').innerText = '₹' + emi.toLocaleString('en-IN');
+    document.getElementById('emi-interest-total').innerText = '₹' + interest.toLocaleString('en-IN');
+    document.getElementById('emi-total').innerText = '₹' + total.toLocaleString('en-IN');
+    document.getElementById('emi-daily').innerText = '₹' + daily.toLocaleString('en-IN');
+  }
+  emiInputs.forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', computeEMI); });
+  computeEMI();
+
+  // Download & Print
+  const downloadBtn = document.getElementById('btn-download-report');
+  if (downloadBtn) downloadBtn.addEventListener('click', downloadCreditReport);
+  const printBtn = document.getElementById('btn-print-report');
+  if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+  // Transaction search/filter
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'tx-search' || e.target.id === 'tx-filter') {
+      const search = document.getElementById('tx-search')?.value || '';
+      const filter = document.getElementById('tx-filter')?.value || 'all';
+      if (currentTransactions) populateTransactionTable(currentTransactions, search, filter);
+    }
   });
+
+  // Apply capital button
+  const applyCapitalBtn = document.getElementById('btn-apply-capital');
+  if (applyCapitalBtn) {
+    applyCapitalBtn.addEventListener('click', () => {
+      const bankSection = document.getElementById('bank-offers-container');
+      if (bankSection) { bankSection.scrollIntoView({ behavior: 'smooth' }); showToast('Select a bank partner below to apply.', 'info'); }
+    });
+  }
 }
 
 function switchView(viewName) {
@@ -934,8 +1000,8 @@ async function renderBorrowerDashboard() {
       if (content.gstStatus && !content.gstStatus.includes("None")) {
         hasGst = true;
       }
-      stabilitySum += parseInt(content.adbStability || "80%");
-      growthSum += parseFloat(content.growthRate || "0%");
+      stabilitySum += parseFloat((content.adbStability || "80").toString().replace('%',''));
+      growthSum += parseFloat((content.growthRate || "0").toString().replace('%',''));
     });
     
     consolidatedUpload = {
@@ -977,10 +1043,18 @@ async function renderBorrowerDashboard() {
   }
   renderUploadZone();
   const transactions = await getTransactionsForPersona(activePersona.id);
+  currentTransactions = transactions;
   
   animateScoreGauge(evaluation.pragatiScore, evaluation.tier, evaluation.tierClass);
   const projectedCircle = document.querySelector('.score-projected-circle');
   if (projectedCircle) projectedCircle.style.opacity = '0';
+  
+  // Track score history
+  const historyKey = `credai_score_history_${activePersona.id}`;
+  const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+  history.push({ score: evaluation.pragatiScore, ts: Date.now() });
+  if (history.length > 10) history.shift();
+  localStorage.setItem(historyKey, JSON.stringify(history));
   
   updateSubscoreBar('score-vol', evaluation.subscores.volume);
   updateSubscoreBar('score-stab', evaluation.subscores.stability);
@@ -1083,10 +1157,23 @@ function updateSubscoreBar(elementId, value) {
   if (fill && valText) { fill.style.width = `${value}%`; valText.innerText = `${value}/100`; }
 }
 
-function populateTransactionTable(transactions) {
+function populateTransactionTable(transactions, search = '', filter = 'all') {
   const tbody = document.getElementById('bor-tx-body');
+  if (!tbody) return;
+  
+  let filtered = transactions;
+  if (filter !== 'all') filtered = filtered.filter(tx => tx.type === filter);
+  if (search) filtered = filtered.filter(tx => 
+    tx.description.toLowerCase().includes(search.toLowerCase()) ||
+    tx.category.toLowerCase().includes(search.toLowerCase())
+  );
+  
+  const display = filtered.slice(0, 20);
+  const countEl = document.getElementById('tx-count');
+  if (countEl) countEl.innerText = `${display.length} of ${filtered.length}`;
+  
   tbody.innerHTML = '';
-  transactions.slice(0, 10).forEach(tx => {
+  display.forEach(tx => {
     const tr = document.createElement('tr');
     const isDeposit = tx.type === 'Deposit';
     tr.innerHTML = `
@@ -1114,6 +1201,8 @@ function setupLoanCalculator() {
 }
 
 function updateLoanCalculations() {
+  if (!evaluation) return;
+  
   const amount = parseInt(document.getElementById('loan-amount').value);
   const tenure = parseInt(document.getElementById('loan-tenure').value);
   const terms = getLoanTerms(evaluation.pragatiScore, amount);
@@ -1143,8 +1232,9 @@ function updateLoanCalculations() {
 
 function renderBankCollaborationPortal(overrideScore = null) {
   const container = document.getElementById('bank-offers-container');
-  if (!container) return;
-  const amount = parseInt(document.getElementById('loan-amount').value);
+  if (!container || !evaluation) return;
+  const amountSlider = document.getElementById('loan-amount');
+  const amount = amountSlider ? parseInt(amountSlider.value) : 20000;
   const score = overrideScore !== null ? overrideScore : evaluation.pragatiScore;
   container.innerHTML = '';
   
@@ -1180,7 +1270,7 @@ function renderBankCollaborationPortal(overrideScore = null) {
           </div>
         </div>
       </div>
-      <button class="btn btn-primary" style="width:100%; padding:0.5rem 1rem; font-size:0.85rem;" ${isApproved ? '' : 'disabled style="opacity:0.3; cursor:not-allowed;"'}>Apply Now</button>
+      <button class="btn btn-primary" style="width:100%; padding:0.5rem 1rem; font-size:0.85rem; ${!isApproved ? 'opacity:0.4; cursor:not-allowed;' : ''}" ${!isApproved ? 'disabled' : ''}>Apply Now</button>
     `;
     if (isApproved) {
       card.querySelector('button').addEventListener('click', () => { submitLoanApplication(bank.id, bank.name); });
@@ -1207,8 +1297,8 @@ async function submitLoanApplication(bankId, bankName) {
       sumInflows += content.totalInflows || 0;
       sumBounces += content.chequeBounces || 0;
       if (content.gstStatus && !content.gstStatus.includes("None")) hasGst = true;
-      stabilitySum += parseInt(content.adbStability || "80%");
-      growthSum += parseFloat(content.growthRate || "0%");
+      stabilitySum += parseFloat((content.adbStability || "80").toString().replace('%',''));
+      growthSum += parseFloat((content.growthRate || "0").toString().replace('%',''));
     });
     consolidatedUpload = {
       averageDailyBalance: Math.round(sumAdb / count),
@@ -1383,6 +1473,23 @@ function renderUploadZone() {
       clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearUpload(); });
     }
   }
+  rebindDropZone();
+}
+
+function rebindDropZone() {
+  const dropZone = document.getElementById('upload-zone');
+  if (!dropZone) return;
+  ['dragenter','dragover','dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => ev.preventDefault()));
+  ['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('drag-active')));
+  ['dragleave','drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('drag-active')));
+  dropZone.addEventListener('drop', () => {
+    const files = Object.keys(sampleUploadFiles);
+    handleSimulatedUpload(files[Math.floor(Math.random() * files.length)]);
+  });
+  dropZone.addEventListener('click', ev => {
+    if (ev.target.closest('button')) return;
+    handleSimulatedUpload('healthy_kirana');
+  });
 }
 
 // ==========================================
@@ -1531,10 +1638,11 @@ function generateSmartCommentary(stressed, rev, cost, vol) {
   const name = selectedApplication.borrowerName;
   const sector = selectedApplication.roleName;
   let report = "";
+  const appScore = selectedApplication ? selectedApplication.score : (evaluation ? evaluation.pragatiScore : 0);
   
   if (rev === 0 && cost === 0 && vol === 0) {
-    report = `<strong>AI Assessment:</strong> ${name} (${sector}) displays a baseline score of <strong style="color:var(--secondary);">${evaluation.pragatiScore}</strong>. `;
-    if (evaluation.pragatiScore >= 750) report += `Liquidity reserves are solid. Recommended for fast-track underwriting.`;
+    report = `<strong>AI Assessment:</strong> ${name} (${sector}) displays a baseline score of <strong style="color:var(--secondary);">${appScore}</strong>. `;
+    if (appScore >= 750) report += `Liquidity reserves are solid. Recommended for fast-track underwriting.`;
     else report += `Satisfactory discipline. Suggested for daily siphoning MCA terms.`;
   } else {
     report = `<strong>Stressed Risk Analysis:</strong> `;
@@ -1710,12 +1818,15 @@ function inspectPipelineStep(step) {
   const details = pipelineDetails[step];
   if (!details) return;
   
-  document.getElementById('inspector-step-title').innerText = `Viewing details for: ${details.name}`;
-  document.getElementById('inspect-node-name').innerText = details.name;
-  document.getElementById('inspect-node-description').innerText = details.desc;
+  const titleEl = document.getElementById('inspector-step-title');
+  if (titleEl) titleEl.innerText = `Viewing details for: ${details.name}`;
+  const nameEl = document.getElementById('inspect-node-name');
+  if (nameEl) nameEl.innerText = details.name;
+  const descEl = document.getElementById('inspect-node-description');
+  if (descEl) descEl.innerText = details.desc;
   
   const codeEl = document.getElementById('inspect-node-code');
-  codeEl.innerText = details.code;
+  if (codeEl) codeEl.innerText = details.code;
 }
 
 // ==========================================
@@ -1894,7 +2005,47 @@ function renderLoanRecommendation() {
   if (emiEl) emiEl.innerText = '₹' + monthlyEmi.toLocaleString('en-IN');
   if (durationEl) durationEl.innerText = duration + ' Mo';
   if (confidenceEl) confidenceEl.innerText = confidence + '%';
+  if (confidenceEl) confidenceEl.innerText = confidence + '%';
   if (confidenceBar) confidenceBar.style.width = confidence + '%';
+}
+
+function downloadCreditReport() {
+  if (!activePersona || !evaluation) { showToast('Please select a borrower profile first.', 'error'); return; }
+  const report = {
+    reportTitle: 'CredAI Alternative Credit Report',
+    generatedAt: new Date().toISOString(),
+    borrowerProfile: {
+      name: activePersona.name,
+      business: activePersona.businessName,
+      role: activePersona.roleName,
+      location: activePersona.location,
+      sector: activePersona.sector
+    },
+    creditScore: {
+      credAIScore: evaluation.pragatiScore,
+      tier: evaluation.tier,
+      subscores: evaluation.subscores
+    },
+    loanRecommendation: {
+      eligibleAmount: '₹' + Math.round((activePersona.baseMonthlySales * 0.3) * (evaluation.pragatiScore >= 850 ? 18 : evaluation.pragatiScore >= 700 ? 12 : 8)).toLocaleString('en-IN'),
+      suggestedRate: Math.max(10.5, 36 - (evaluation.pragatiScore / 1000) * 24).toFixed(1) + '%'
+    },
+    verifiedData: {
+      gstCompliant: activePersona.hasGst,
+      utilityGrade: activePersona.utilityGrade,
+      upiTransactionRatio: (activePersona.upiRatio * 100).toFixed(0) + '%',
+      averageDailyBalance: '₹' + (activePersona.averageDailyBalance || 0).toLocaleString('en-IN')
+    },
+    disclaimer: 'This report is generated by CredAI and is based on verified alternative financial data. It complies with RBI Account Aggregator guidelines and DPDP Act 2023.'
+  };
+  const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `CredAI_Report_${activePersona.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Credit report downloaded!', 'success');
 }
 
 // ==========================================

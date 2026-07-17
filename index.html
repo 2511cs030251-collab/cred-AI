@@ -18,12 +18,16 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: -4px;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         <span>CredAI</span>
       </div>
-      <nav>
+      <nav style="display:flex; align-items:center;">
         <ul>
           <li class="active"><button data-target="landing"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="10" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Overview</button></li>
           <li><button data-target="borrower"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Borrower Portal</button></li>
           <li><button data-target="underwriter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> Underwriter Panel</button></li>
         </ul>
+        <button id="theme-toggle" class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.8rem; display:flex; align-items:center; gap:0.4rem; margin-left:1.5rem;" title="Toggle Dark/Light Mode">
+          <svg id="theme-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <span id="theme-label">Light</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -295,7 +299,7 @@
               </div>
             </div>
             
-            <button class="btn btn-primary" style="width: 100%; margin-top: 1.25rem;" onclick="showToast('Loan Application submitted to Underwriter queue.', 'success');">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1.25rem;" id="btn-apply-capital">
               Apply For Capital
             </button>
           </div>
@@ -440,6 +444,15 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             Recent Transaction Logs (Verified UPI & Bank)
           </h3>
+          <div style="display:flex; gap:0.75rem; margin-bottom:0.75rem; align-items:center;">
+            <input type="text" id="tx-search" placeholder="Search transactions..." style="flex:1; background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; padding:0.5rem 0.75rem; color:var(--text-main); font-family:var(--font-body); outline:none; font-size:0.85rem;">
+            <select id="tx-filter" style="background:var(--bg-surface); border:1px solid var(--border-muted); border-radius:8px; padding:0.5rem 0.75rem; color:var(--text-main); font-family:var(--font-body); outline:none; cursor:pointer; font-size:0.85rem;">
+              <option value="all">All Types</option>
+              <option value="Deposit">Deposits Only</option>
+              <option value="Withdrawal">Withdrawals Only</option>
+            </select>
+            <span id="tx-count" style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap;">10 of 10</span>
+          </div>
           <div class="tx-table-container">
             <table>
               <thead>
@@ -520,6 +533,18 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Download & Share Report -->
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
+        <button id="btn-download-report" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Credit Report
+        </button>
+        <button id="btn-print-report" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          Print Report
+        </button>
       </div>
 
       <!-- Bank Collaboration Portal -->
@@ -765,6 +790,38 @@
     </div>
   </footer>
   
+  <!-- EMI Calculator Modal -->
+  <div id="emi-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:999; align-items:center; justify-content:center;">
+    <div class="glass-card" style="width:min(480px,90vw); padding:2rem; position:relative;">
+      <button onclick="document.getElementById('emi-modal').style.display='none'" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">×</button>
+      <h3 style="font-family:var(--font-heading); font-size:1.3rem; margin-bottom:1.25rem; color:var(--secondary);">📊 EMI Calculator</h3>
+      <div class="slider-group" style="margin-bottom:1rem;">
+        <div class="slider-header"><span class="slider-label">Loan Amount</span><span class="slider-value" id="emi-amount-val">₹50,000</span></div>
+        <input type="range" id="emi-amount" class="custom-slider" min="5000" max="500000" step="5000" value="50000">
+      </div>
+      <div class="slider-group" style="margin-bottom:1rem;">
+        <div class="slider-header"><span class="slider-label">Annual Interest Rate</span><span class="slider-value" id="emi-rate-val">12%</span></div>
+        <input type="range" id="emi-rate" class="custom-slider secondary-slider" min="8" max="36" step="0.5" value="12">
+      </div>
+      <div class="slider-group" style="margin-bottom:1.5rem;">
+        <div class="slider-header"><span class="slider-label">Tenure</span><span class="slider-value" id="emi-tenure-val">12 Months</span></div>
+        <input type="range" id="emi-tenure" class="custom-slider warning-slider" min="1" max="60" step="1" value="12">
+      </div>
+      <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-muted); border-radius:10px; padding:1.25rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem; text-align:center;">
+        <div><div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.3rem;">Monthly EMI</div><div id="emi-result" style="font-size:1.5rem; font-weight:700; color:var(--secondary);">₹0</div></div>
+        <div><div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.3rem;">Total Interest</div><div id="emi-interest-total" style="font-size:1.5rem; font-weight:700; color:var(--danger);">₹0</div></div>
+        <div><div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.3rem;">Total Payable</div><div id="emi-total" style="font-size:1.5rem; font-weight:700; color:var(--primary);">₹0</div></div>
+        <div><div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.3rem;">Daily Cost</div><div id="emi-daily" style="font-size:1.5rem; font-weight:700; color:var(--warning);">₹0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating EMI Button -->
+  <button id="emi-fab" onclick="document.getElementById('emi-modal').style.display='flex'" style="position:fixed; bottom:2rem; right:2rem; z-index:998; background:var(--primary); color:#fff; border:none; border-radius:9999px; padding:0.75rem 1.25rem; font-family:var(--font-heading); font-weight:600; font-size:0.85rem; cursor:pointer; box-shadow:0 4px 20px var(--primary-glow); display:flex; align-items:center; gap:0.5rem; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    EMI Calc
+  </button>
+
   <script src="js/app.js"></script>
 </body>
 </html>
