@@ -81,13 +81,6 @@ CredAI serves six specific underbanked segments:
 - Integrates a real-time Fraud Risk badge in the underwriter panel.
 - Simulates anomaly detection checks (Isolation Forest, circular transaction tracking) to identify potential statement manipulation or credit cycling.
 
-### 3.7. Onboarding & Authentication Flow (Login & Sign Up)
-- **Multi-Role Portal Entry**: Allows entry through distinct user gates:
-  - *Borrower Portal*: Supports entering a 10-digit Mobile Number or Email Address to trigger mock verification code delivery (verification code: `123456`). A Quick Select profile dropdown auto-populates mock borrower credentials for simplified playtesting.
-  - *Lender / Underwriter Portal*: Authenticates institutional underwriters securely (defaults: `admin`/`admin`).
-- **New User Registration (Sign Up)**: Exposes a signup form collecting borrower details (Name, Business Name, Sector, Utility Bills, Aadhaar Number, Mobile Number, Email Address, Monthly sales, ADB, and UPI ratios). Creates a new persona profile, generates transaction lists, registers the new credentials, and directs the user to the verification gate.
-- **Session Logout**: Enables users to terminate their active sessions, clearing state inputs and returning them securely to the login gateway.
-
 ---
 
 ## 4. Technology Stack
