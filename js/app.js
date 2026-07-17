@@ -686,6 +686,304 @@ async function initApp() {
   navItems = document.querySelectorAll('nav li');
   sections = document.querySelectorAll('.tab-content');
   
+  // Login Page Switcher Logic
+  const tabBorrower = document.getElementById('tab-login-borrower');
+  const tabLender = document.getElementById('tab-login-lender');
+  const secBorrower = document.getElementById('login-section-borrower');
+  const secLender = document.getElementById('login-section-lender');
+  
+  if (tabBorrower && tabLender) {
+    tabBorrower.addEventListener('click', () => {
+      tabBorrower.style.background = 'var(--secondary)';
+      tabBorrower.style.color = 'white';
+      tabLender.style.background = 'transparent';
+      tabLender.style.color = 'var(--text-dim)';
+      secBorrower.style.display = 'block';
+      secLender.style.display = 'none';
+    });
+    
+    tabLender.addEventListener('click', () => {
+      tabLender.style.background = 'var(--secondary)';
+      tabLender.style.color = 'white';
+      tabBorrower.style.background = 'transparent';
+      tabBorrower.style.color = 'var(--text-dim)';
+      secLender.style.display = 'block';
+      secBorrower.style.display = 'none';
+    });
+  }
+  
+  // Persona Login Credentials Database Map
+  const personaCredentials = {
+    "9876543210": "vendor",
+    "ramesh@credai.in": "vendor",
+    "9876543211": "kirana",
+    "sunita@credai.in": "kirana",
+    "9876543212": "gig",
+    "vikram@credai.in": "gig",
+    "9876543213": "farmer",
+    "harish@credai.in": "farmer",
+    "9876543214": "boutique",
+    "pooja@credai.in": "boutique",
+    "9876543215": "freelancer",
+    "aditya@credai.in": "freelancer"
+  };
+
+  // Sync Select Dropdown to Input field
+  const loginPersonaSelect = document.getElementById('login-persona-select');
+  const loginIdentifier = document.getElementById('login-identifier');
+  if (loginPersonaSelect && loginIdentifier) {
+    loginPersonaSelect.addEventListener('change', () => {
+      const val = loginPersonaSelect.value;
+      if (val === 'vendor') loginIdentifier.value = '9876543210';
+      else if (val === 'kirana') loginIdentifier.value = '9876543211';
+      else if (val === 'gig') loginIdentifier.value = '9876543212';
+      else if (val === 'farmer') loginIdentifier.value = '9876543213';
+      else if (val === 'boutique') loginIdentifier.value = '9876543214';
+      else if (val === 'freelancer') loginIdentifier.value = '9876543215';
+      else loginIdentifier.value = '';
+    });
+  }
+
+  // Borrower OTP Simulation Logic
+  const btnLoginBorrower = document.getElementById('btn-login-borrower-action');
+  const otpArea = document.getElementById('login-otp-area');
+  const otpInput = document.getElementById('login-otp');
+  const otpTimer = document.getElementById('login-otp-timer');
+  let countdownTimer = null;
+  
+  if (btnLoginBorrower) {
+    btnLoginBorrower.addEventListener('click', () => {
+      const identifier = loginIdentifier.value.trim().toLowerCase();
+      if (!identifier) {
+        showToast('Please enter your mobile number or email address', 'error');
+        return;
+      }
+      
+      // Simple validation for 10-digit mobile or email format
+      const isMobile = /^\d{10}$/.test(identifier);
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+      
+      if (!isMobile && !isEmail) {
+        showToast('Please enter a valid 10-digit mobile number or email address', 'error');
+        return;
+      }
+      
+      if (otpArea.style.display === 'none') {
+        // Send OTP Simulation
+        otpArea.style.display = 'block';
+        btnLoginBorrower.innerText = 'Verify Code & Access Portal';
+        showToast(`Verification code sent to ${identifier}!`, 'success');
+        otpInput.value = '123456'; // auto-populate mock OTP for easy demo
+        
+        let seconds = 30;
+        otpTimer.innerText = `Resend Code in ${seconds}s`;
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = setInterval(() => {
+          seconds--;
+          if (seconds <= 0) {
+            clearInterval(countdownTimer);
+            otpTimer.innerText = 'Resend Code';
+            otpTimer.style.cursor = 'pointer';
+          } else {
+            otpTimer.innerText = `Resend Code in ${seconds}s`;
+          }
+        }, 1000);
+      } else {
+        // Verify OTP Simulation
+        const otpVal = otpInput.value.trim();
+        if (otpVal.length !== 6) {
+          showToast('Please enter a 6-digit verification code', 'error');
+          return;
+        }
+        
+        const targetPersonaId = personaCredentials[identifier];
+        if (!targetPersonaId) {
+          showToast('No registered profile matches this mobile/email. Please sign up!', 'error');
+          return;
+        }
+        
+        activePersona = personasMap[targetPersonaId] || personas[targetPersonaId] || personasMap.vendor;
+        
+        // Success Transition
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('main-app-container').style.display = 'block';
+        
+        switchView('landing');
+        renderBorrowerDashboard();
+        showToast(`Welcome back, ${activePersona.name}!`, 'success');
+      }
+    });
+  }
+  
+  // Lender / Underwriter Login Logic
+  const btnLoginLender = document.getElementById('btn-login-lender-action');
+  if (btnLoginLender) {
+    btnLoginLender.addEventListener('click', () => {
+      const user = document.getElementById('login-lender-user').value.trim();
+      const pass = document.getElementById('login-lender-pass').value.trim();
+      
+      if (user === 'admin' && pass === 'admin') {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('main-app-container').style.display = 'block';
+        
+        // Auto-view underwriter dashboard
+        switchView('underwriter');
+        renderUnderwriterDashboard();
+        showToast('Authenticated as Lead Credit Underwriter', 'success');
+      } else {
+        showToast('Invalid underwriter credentials', 'error');
+      }
+    });
+  }
+  
+  // Logout Button Logic
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      // Clean up inputs and state
+      if (countdownTimer) clearInterval(countdownTimer);
+      if (otpArea) otpArea.style.display = 'none';
+      if (btnLoginBorrower) btnLoginBorrower.innerText = 'Send Verification Code';
+      if (otpInput) otpInput.value = '';
+      if (loginIdentifier) loginIdentifier.value = '';
+      if (loginPersonaSelect) loginPersonaSelect.value = '';
+      
+      document.getElementById('main-app-container').style.display = 'none';
+      document.getElementById('login-container').style.display = 'flex';
+      showToast('Logged out successfully', 'success');
+    });
+  }
+  
+  // Signup Navigation Logic
+  const linkGotoSignup = document.getElementById('link-goto-signup');
+  const linkGotoLogin = document.getElementById('link-goto-login');
+  const secSignup = document.getElementById('login-section-signup');
+  
+  if (linkGotoSignup && secSignup) {
+    linkGotoSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      secBorrower.style.display = 'none';
+      secSignup.style.display = 'block';
+    });
+  }
+  if (linkGotoLogin && secSignup) {
+    linkGotoLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      secSignup.style.display = 'none';
+      secBorrower.style.display = 'block';
+    });
+  }
+  
+  // Signup Sliders Real-time Sync
+  const signupSales = document.getElementById('signup-sales');
+  const signupAdb = document.getElementById('signup-adb');
+  const signupUpi = document.getElementById('signup-upi');
+  
+  if (signupSales) {
+    signupSales.addEventListener('input', () => {
+      document.getElementById('signup-sales-val').innerText = '₹' + parseInt(signupSales.value).toLocaleString('en-IN');
+    });
+  }
+  if (signupAdb) {
+    signupAdb.addEventListener('input', () => {
+      document.getElementById('signup-adb-val').innerText = '₹' + parseInt(signupAdb.value).toLocaleString('en-IN');
+    });
+  }
+  if (signupUpi) {
+    signupUpi.addEventListener('input', () => {
+      document.getElementById('signup-upi-val').innerText = signupUpi.value + '%';
+    });
+  }
+  
+  // Register Profile Action Logic
+  const btnSignup = document.getElementById('btn-signup-action');
+  if (btnSignup) {
+    btnSignup.addEventListener('click', () => {
+      const name = document.getElementById('signup-name').value.trim();
+      const business = document.getElementById('signup-business').value.trim();
+      const sector = document.getElementById('signup-sector').value;
+      const utility = document.getElementById('signup-utility').value;
+      const aadhaar = document.getElementById('signup-aadhaar').value.replace(/\s+/g, '');
+      const mobile = document.getElementById('signup-mobile').value.trim();
+      const email = document.getElementById('signup-email').value.trim().toLowerCase();
+      const sales = parseInt(signupSales.value);
+      const adb = parseInt(signupAdb.value);
+      const upi = parseInt(signupUpi.value);
+      
+      if (!name || !business) {
+        showToast('Please fill out your name and business name', 'error');
+        return;
+      }
+      if (aadhaar.length < 12) {
+        showToast('Aadhaar number must be exactly 12 digits', 'error');
+        return;
+      }
+      if (!/^\d{10}$/.test(mobile)) {
+        showToast('Mobile number must be exactly 10 digits', 'error');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Please enter a valid email address', 'error');
+        return;
+      }
+      
+      const customId = `custom_${Date.now()}`;
+      const sectorLabels = {
+        vendor: "Street Vendor",
+        kirana: "Kirana Store Owner",
+        gig: "Gig Worker",
+        farmer: "Farmer",
+        boutique: "Boutique Owner",
+        freelancer: "Freelancer"
+      };
+      
+      const newPersona = {
+        id: customId,
+        name: name,
+        avatar: "👤",
+        businessName: business,
+        roleName: sectorLabels[sector] || "Self-Employed",
+        location: "Kalyan, Maharashtra",
+        description: `Registered business profile. Monthly inflows: ₹${sales.toLocaleString('en-IN')}.`,
+        baseMonthlySales: sales,
+        upiRatio: upi / 100,
+        avgDailyTxCount: sector === 'vendor' ? 40 : 80,
+        averageDailyBalance: adb,
+        hasGst: sales * 12 > 2000000,
+        utilityGrade: utility,
+        sector: sector,
+        typicalLoanRequest: { amount: Math.round(sales * 0.8), tenure: 12, purpose: "Business Capital Expansion" },
+        metrics: { adb: adb, monthlyInflow: sales, inflowStability: 85, growthTrend: 6.5 }
+      };
+      
+      personasMap[customId] = newPersona;
+      generateCustomTransactions(newPersona);
+      
+      // Register custom credentials
+      personaCredentials[mobile] = customId;
+      personaCredentials[email] = customId;
+      
+      // Auto-populate select option
+      const select = document.getElementById('login-persona-select');
+      const opt = document.createElement('option');
+      opt.value = customId;
+      opt.text = `${name} – Custom (${sectorLabels[sector]})`;
+      select.add(opt);
+      
+      // Auto-populate Login input fields and show verification code screen
+      loginIdentifier.value = mobile;
+      loginPersonaSelect.value = '';
+      
+      // Show login section and trigger Send Code
+      secSignup.style.display = 'none';
+      secBorrower.style.display = 'block';
+      showToast('Profile created! Sending verification code...', 'success');
+      
+      // Auto-trigger OTP send
+      btnLoginBorrower.click();
+    });
+  }
+  
   // Try to ping server
   try {
     const res = await fetch('/api/personas');

@@ -12,7 +12,171 @@
 <body>
   <div class="bg-ambient"></div>
   
-  <header>
+  <!-- ======================================================== -->
+  <!-- LOGIN CONTAINER -->
+  <!-- ======================================================== -->
+  <div id="login-container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; position: relative; z-index: 10;">
+    <div class="glass-card" style="width: 100%; max-width: 500px; padding: 2.5rem; border-color: rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;">
+      
+      <!-- Brand Logo -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--secondary);"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; letter-spacing: -0.05em; background: linear-gradient(135deg, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CredAI</span>
+      </div>
+      <p style="color: var(--text-dim); font-size: 0.88rem; margin-bottom: 2rem;">Financial Trust Beyond Credit Scores</p>
+      
+      <!-- Login Tabs (Switch Borrower vs Underwriter) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; background: rgba(0,0,0,0.2); border: 1px solid var(--border-muted); border-radius: 8px; padding: 0.25rem; margin-bottom: 1.75rem;">
+        <button id="tab-login-borrower" style="background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; width: 100%;">Borrower Portal</button>
+        <button id="tab-login-lender" style="background: transparent; color: var(--text-dim); border: none; border-radius: 6px; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; width: 100%;">Lender Panel</button>
+      </div>
+
+      <!-- BORROWER LOGIN SECTION -->
+        <div style="text-align: left; margin-bottom: 1.25rem;">
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Enter Mobile Number or Email Address</label>
+          <input type="text" id="login-identifier" placeholder="E.g., 9876543210 or name@domain.com" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 8px; padding: 0.65rem 0.8rem; color: var(--text-main); font-family: var(--font-body); outline: none; font-size: 0.9rem; height: 44px; margin-bottom: 1rem;">
+          
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Or quick select a simulation profile</label>
+          </div>
+          <select id="login-persona-select" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 8px; padding: 0.65rem 0.8rem; color: var(--text-main); font-family: var(--font-body); outline: none; font-size: 0.9rem; cursor: pointer; height: 44px; margin-top: 0.25rem;">
+            <option value="">-- Choose Profile --</option>
+            <option value="vendor">Ramesh Kumar – Street Vendor (9876543210)</option>
+            <option value="kirana">Sunita Devi – Kirana Store Owner (9876543211)</option>
+            <option value="gig">Vikram Rathore – Gig Worker (9876543212)</option>
+            <option value="farmer">Harish Patel – Smallholder Farmer (9876543213)</option>
+            <option value="boutique">Pooja Sharma – Boutique Owner (9876543214)</option>
+            <option value="freelancer">Aditya Mehta – Freelance Developer (9876543215)</option>
+          </select>
+        </div>
+
+        <!-- OTP Input Area (Hidden initially) -->
+        <div id="login-otp-area" style="display: none; text-align: left; margin-bottom: 1.5rem; animation: fadeIn 0.4s ease-out;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Enter 6-Digit Verification Code</label>
+            <span id="login-otp-timer" style="font-size: 0.75rem; color: var(--secondary); font-weight: 600;">Resend Code in 30s</span>
+          </div>
+          <input type="text" id="login-otp" placeholder="Enter Mock Code (123456)" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 8px; padding: 0.65rem 0.8rem; color: var(--text-main); font-family: var(--font-body); outline: none; font-size: 0.9rem; letter-spacing: 0.3em; text-align: center; height: 44px;">
+        </div>
+
+        <button id="btn-login-borrower-action" class="btn btn-primary" style="width: 100%; height: 44px; font-size: 0.95rem;">Send Verification Code</button>
+        
+        <p id="login-signup-link-wrap" style="text-align: center; font-size: 0.78rem; color: var(--text-dim); margin-top: 1.25rem; margin-bottom: 0;">
+          Don't have an account? <a href="#" id="link-goto-signup" style="color:var(--secondary); font-weight:600; text-decoration:none;">Sign up</a>
+        </p>
+      </div>
+
+      <!-- SIGNUP SECTION (Hidden by default) -->
+      <div id="login-section-signup" style="display: none; text-align: left;">
+        <h4 style="color: var(--secondary); margin-bottom: 1rem; font-size: 1.1rem; text-align: center;">Register New Borrower Profile</h4>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Full Name</label>
+            <input type="text" id="signup-name" placeholder="E.g., Priya Patel" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 6px; padding: 0.5rem 0.75rem; color: var(--text-main); font-size: 0.85rem; height: 38px;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Business Name</label>
+            <input type="text" id="signup-business" placeholder="E.g., Priya Organics" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 6px; padding: 0.5rem 0.75rem; color: var(--text-main); font-size: 0.85rem; height: 38px;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Sector</label>
+            <select id="signup-sector" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 6px; padding: 0.5rem 0.75rem; color: var(--text-main); font-size: 0.85rem; height: 38px; cursor: pointer;">
+              <option value="vendor">Street Vendor</option>
+              <option value="kirana">Kirana Store</option>
+              <option value="gig">Gig Worker</option>
+              <option value="farmer">Agriculture</option>
+              <option value="boutique">Apparel/Boutique</option>
+              <option value="freelancer">Freelancer</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Utility Bills Grade</label>
+            <select id="signup-utility" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 6px; padding: 0.5rem 0.75rem; color: var(--text-main); font-size: 0.85rem; height: 38px; cursor: pointer;">
+              <option value="A+">Excellent (Grade A+)</option>
+              <option value="A">Good (Grade A)</option>
+              <option value="B+">Average (Grade B+)</option>
+              <option value="B">Below Average (Grade B)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Aadhaar Number</label>
+            <input type="text" id="signup-aadhaar" placeholder="12-Digit Aadhaar" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 6px; padding: 0.5rem 0.75rem; color: var(--text-main); font-size: 0.85rem; height: 38px;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Mobile Number</label>
+            <input type="text" id="signup-mobile" placeholder="10-Digit Mobile" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 6px; padding: 0.5rem 0.75rem; color: var(--text-main); font-size: 0.85rem; height: 38px;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Email Address</label>
+          <input type="email" id="signup-email" placeholder="name@domain.com" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 6px; padding: 0.5rem 0.75rem; color: var(--text-main); font-size: 0.85rem; height: 38px;">
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+            <span>Monthly Inflow / Sales</span>
+            <strong id="signup-sales-val" style="color:var(--secondary);">₹80,000</strong>
+          </div>
+          <input type="range" id="signup-sales" min="10000" max="400000" step="5000" value="80000" style="width:100%; accent-color:var(--secondary); height:4px; border-radius:9999px; outline:none;">
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+            <span>Average Daily Balance (ADB)</span>
+            <strong id="signup-adb-val" style="color:var(--secondary);">₹12,000</strong>
+          </div>
+          <input type="range" id="signup-adb" min="500" max="80000" step="500" value="12000" style="width:100%; accent-color:var(--secondary); height:4px; border-radius:9999px; outline:none;">
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+            <span>Digital Payment (UPI) Ratio</span>
+            <strong id="signup-upi-val" style="color:var(--secondary);">80%</strong>
+          </div>
+          <input type="range" id="signup-upi" min="10" max="100" step="5" value="80" style="width:100%; accent-color:var(--secondary); height:4px; border-radius:9999px; outline:none;">
+        </div>
+
+        <button id="btn-signup-action" class="btn btn-primary" style="width: 100%; height: 42px; font-size: 0.9rem;">Register & Send Verification OTP</button>
+        
+        <p style="text-align: center; font-size: 0.78rem; color: var(--text-dim); margin-top: 1rem; margin-bottom: 0;">
+          Already have an account? <a href="#" id="link-goto-login" style="color:var(--secondary); font-weight:600; text-decoration:none;">Log in</a>
+        </p>
+      </div>
+
+      <!-- LENDER / UNDERWRITER LOGIN SECTION (Hidden by default) -->
+      <div id="login-section-lender" style="display: none;">
+        <div style="text-align: left; margin-bottom: 1.25rem;">
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Officer Username</label>
+          <input type="text" id="login-lender-user" value="admin" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 8px; padding: 0.65rem 0.8rem; color: var(--text-main); font-family: var(--font-body); outline: none; font-size: 0.9rem; height: 44px;">
+        </div>
+
+        <div style="text-align: left; margin-bottom: 1.75rem;">
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Secret Key / Password</label>
+          <input type="password" id="login-lender-pass" value="admin" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: 8px; padding: 0.65rem 0.8rem; color: var(--text-main); font-family: var(--font-body); outline: none; font-size: 0.9rem; height: 44px;">
+        </div>
+
+        <button id="btn-login-lender-action" class="btn btn-primary" style="width: 100%; height: 44px; font-size: 0.95rem; background: linear-gradient(135deg, var(--secondary), #2dd4bf); box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);">Authenticate Lender Account</button>
+      </div>
+
+      <div style="margin-top: 2rem; border-top: 1px dashed var(--border-muted); padding-top: 1.25rem; display: flex; justify-content: center; gap: 1rem; align-items: center;">
+        <span style="font-size: 0.7rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.2rem;">🔒 Encrypted</span>
+        <span style="font-size: 0.7rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.2rem;">🏛️ RBI AA Gate</span>
+        <span style="font-size: 0.7rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.2rem;">📋 DPDP Act</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="main-app-container" style="display: none;">
+    <header>
     <div class="nav-container">
       <div class="logo">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: -4px;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -23,6 +187,7 @@
           <li class="active"><button data-target="landing"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="10" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Overview</button></li>
           <li><button data-target="borrower"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Borrower Portal</button></li>
           <li><button data-target="underwriter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-2px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> Underwriter Panel</button></li>
+          <li><button id="btn-logout" style="border: 1px solid rgba(244, 63, 94, 0.3); color: var(--danger); background: rgba(244, 63, 94, 0.05); margin-left: 1rem; border-radius: 6px; padding: 0.35rem 0.75rem; display: flex; align-items: center; gap: 0.3rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-1px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button></li>
         </ul>
       </nav>
     </div>
@@ -745,6 +910,7 @@
       <p style="color: var(--text-dim); font-size: 0.72rem;">All data is collected only after customer consent through India's Account Aggregator (AA) Framework. Users can revoke data-sharing consent at any time.</p>
     </div>
   </footer>
+  </div>
   
   <script src="js/app.js"></script>
 </body>
