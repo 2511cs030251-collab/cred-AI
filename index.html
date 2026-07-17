@@ -369,49 +369,64 @@
             
             <!-- Upload Simulation Area -->
             <div class="glass-card" style="display: flex; flex-direction: column;">
-  <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">Alternate Data Consent & Required Documents</h3>
-  <div id="upload-zone" class="upload-zone">
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="17 8 12 3 7 8"/>
-      <line x1="12" y1="3" x2="12" y2="15"/>
-    </svg>
-    <p>Upload Financial Statement</p>
-    <span>Drag &amp; Drop bank statements, GST or invoice files.</span>
-  </div>
-  <p style="margin-top:1rem; font-size:0.9rem; color:var(--text-muted);">Required Documents for Loan Approval:</p>
-  <ul style="margin-left:1.5rem; font-size:0.88rem; color:var(--text-main);">
-    <li>✅ PAN Card (Identity Verification)</li>
-    <li>✅ Aadhaar Card (Resident Verification)</li>
-    <li>✅ GST Returns (Last 2 quarters)</li>
-    <li>✅ Bank Statements (Last 6 months)</li>
-    <li>✅ Business Registration / Incorporation Certificate</li>
-    <li>✅ UPI Transaction History (Exported JSON/CSV)</li>
-  </ul>
-  <div class="upload-samples">
-    <p>Simulate Uploading Files:</p>
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-      <button class="sample-file-btn" data-file="healthy_kirana">
-        <span>Sunita_Devi_Healthy_Statement.json</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </button>
-      <button class="sample-file-btn" data-file="stressed_kirana">
-        <span>Sunita_Devi_Stressed_Shocks.json</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </button>
-      <button class="sample-file-btn" data-file="erratic_gig">
-        <span>Vikram_Rathore_Aggregator_Logs.json</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
+              <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">Alternate Data Consent & Required Documents</h3>
+              <div id="upload-zone" class="upload-zone">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p>Upload Financial Statement</p>
+                <span>Drag &amp; Drop bank statements, GST or invoice files.</span>
+              </div>
+              <p style="margin-top:1rem; font-size:0.9rem; color:var(--text-muted);">Required Documents for Loan Approval:</p>
+              <ul style="margin-left:1.5rem; font-size:0.88rem; color:var(--text-main);">
+                <li>✅ PAN Card (Identity Verification)</li>
+                <li>✅ Aadhaar Card (Resident Verification)</li>
+                <li>✅ GST Returns (Last 2 quarters)</li>
+                <li>✅ Bank Statements (Last 6 months)</li>
+                <li>✅ Business Registration / Incorporation Certificate</li>
+                <li>✅ UPI Transaction History (Exported JSON/CSV)</li>
+              </ul>
+              <div class="upload-samples">
+                <p>Simulate Uploading Files:</p>
+
+                <p style="font-size:0.75rem; font-weight:700; color:var(--secondary); text-transform:uppercase; letter-spacing:0.05em; margin:0.5rem 0 0.3rem;">🛒 Kirana Store</p>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="sample-file-btn" data-file="healthy_kirana"><span>Sunita_Devi_Healthy_6Months.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                  <button class="sample-file-btn" data-file="stressed_kirana"><span>Sunita_Devi_Stressed_Shocks.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                </div>
+
+                <p style="font-size:0.75rem; font-weight:700; color:var(--secondary); text-transform:uppercase; letter-spacing:0.05em; margin:0.75rem 0 0.3rem;">🚖 Gig Worker</p>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="sample-file-btn" data-file="healthy_gig"><span>Vikram_Rathore_HealthyPayout.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                  <button class="sample-file-btn" data-file="erratic_gig"><span>Vikram_Rathore_Fluctuating.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                </div>
+
+                <p style="font-size:0.75rem; font-weight:700; color:var(--secondary); text-transform:uppercase; letter-spacing:0.05em; margin:0.75rem 0 0.3rem;">☕ Street Vendor</p>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="sample-file-btn" data-file="healthy_vendor"><span>Ramesh_Kumar_UPI_Healthy.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                  <button class="sample-file-btn" data-file="stressed_vendor"><span>Ramesh_Kumar_UPI_Stressed.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                </div>
+
+                <p style="font-size:0.75rem; font-weight:700; color:var(--secondary); text-transform:uppercase; letter-spacing:0.05em; margin:0.75rem 0 0.3rem;">🌾 Farmer</p>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="sample-file-btn" data-file="healthy_farmer"><span>Harish_Patel_eNAM_Harvest.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                </div>
+
+                <p style="font-size:0.75rem; font-weight:700; color:var(--secondary); text-transform:uppercase; letter-spacing:0.05em; margin:0.75rem 0 0.3rem;">🧵 Boutique</p>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="sample-file-btn" data-file="healthy_boutique"><span>Pooja_Sharma_Invoice_Healthy.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                  <button class="sample-file-btn" data-file="stressed_boutique"><span>Pooja_Sharma_LowSeason.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                </div>
+
+                <p style="font-size:0.75rem; font-weight:700; color:var(--secondary); text-transform:uppercase; letter-spacing:0.05em; margin:0.75rem 0 0.3rem;">💻 Freelancer</p>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <button class="sample-file-btn" data-file="healthy_freelancer"><span>Aditya_Mehta_Projects_Healthy.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                  <button class="sample-file-btn" data-file="stressed_freelancer"><span>Aditya_Mehta_DrySpell.json</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Cash Inflow Chart -->

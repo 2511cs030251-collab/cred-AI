@@ -142,15 +142,30 @@ const personas = {
 };
 
 const collaboratedBanks = [
-  { id: "sbi", name: "State Bank of India", logo: "🏛️", minScore: 720, baseInterest: 10.5, processingFee: 1.0, mode: "Monthly NACH Auto-Debit", description: "Lowest interest rate for highly consistent borrowers." },
-  { id: "hdfc", name: "HDFC Bank", logo: "🏢", minScore: 750, baseInterest: 11.2, processingFee: 1.0, mode: "Monthly NACH / Weekly UPI", description: "Premium credit lines with extensive tenures." },
-  { id: "icici", name: "ICICI Bank", logo: "💳", minScore: 680, baseInterest: 12.5, processingFee: 1.5, mode: "Monthly NACH / Weekly UPI", description: "Flexible business loans with quick sanctions." },
-  { id: "federal", name: "Federal Bank", logo: "🏦", minScore: 600, baseInterest: 14.5, processingFee: 2.0, mode: "Weekly UPI QR Settlement", description: "Sacheted repayments for micro-merchants." },
-  { id: "muthoot", name: "Muthoot Finance", logo: "💰", minScore: 500, baseInterest: 17.5, processingFee: 2.0, mode: "Daily UPI QR Deductions", description: "No collateral. Daily repayments matching sales." },
-  { id: "indifi", name: "Indifi Merchant Capital", logo: "⚡", minScore: 450, baseInterest: 21.0, processingFee: 2.5, mode: "Daily UPI Split (5% QR sales)", description: "For gig workers & vendors with high volume." }
+  // ── Public Sector Banks ──
+  { id: "sbi",      name: "State Bank of India",      logo: "🏛️", minScore: 720, baseInterest: 10.5, processingFee: 1.0, mode: "Monthly NACH Auto-Debit",          description: "India's largest bank. Lowest rates for highly consistent alternative-score borrowers with active balances." },
+  { id: "bob",      name: "Bank of Baroda",           logo: "🏦", minScore: 680, baseInterest: 11.0, processingFee: 1.0, mode: "Monthly NACH Auto-Debit",          description: "Kisan & MSME-focused lending. Strong rural reach with agri-credit and farm-equipment loans." },
+  { id: "pnb",      name: "Punjab National Bank",     logo: "🏟️", minScore: 660, baseInterest: 11.5, processingFee: 1.25, mode: "Monthly NACH / Bi-monthly UPI",  description: "Tailored MSME credit for kirana stores, small factories and artisans." },
+  // ── Private Banks ──
+  { id: "hdfc",     name: "HDFC Bank",                logo: "🏢", minScore: 750, baseInterest: 11.2, processingFee: 1.0, mode: "Monthly NACH / Weekly UPI",       description: "Premium business credit lines with digital-first processing. Fastest disbursals for high scorers." },
+  { id: "icici",    name: "ICICI Bank",               logo: "💳", minScore: 680, baseInterest: 12.5, processingFee: 1.5, mode: "Monthly NACH / Weekly UPI",       description: "Flexible MSME loans with quick automated sanctions and working-capital products." },
+  { id: "axis",     name: "Axis Bank",                logo: "🔷", minScore: 700, baseInterest: 12.0, processingFee: 1.25, mode: "Monthly NACH / Fortnightly UPI", description: "MSME Prime & Udyam credit products with doorstep banking and digital KYC." },
+  { id: "kotak",    name: "Kotak Mahindra Bank",      logo: "🟡", minScore: 720, baseInterest: 11.8, processingFee: 1.0, mode: "Monthly NACH Auto-Debit",          description: "Zero-fee digital current accounts with integrated working-capital credit for freelancers & tech MSMEs." },
+  { id: "idfcfirst",name: "IDFC First Bank",          logo: "🔵", minScore: 640, baseInterest: 13.0, processingFee: 1.5, mode: "Weekly UPI Settlement",           description: "Micro-business loans & monthly-income-linked credit with no prepayment penalty." },
+  { id: "rbl",      name: "RBL Bank",                 logo: "🔴", minScore: 620, baseInterest: 14.0, processingFee: 1.75, mode: "Weekly UPI QR Settlement",       description: "Merchant cash-advance and supply-chain finance for kirana & micro-retail businesses." },
+  // ── Small Finance Banks ──
+  { id: "federal",  name: "Federal Bank",             logo: "🏦", minScore: 600, baseInterest: 14.5, processingFee: 2.0, mode: "Weekly UPI QR Settlement",        description: "Sachet repayments tailored for micro-merchants. Kerala-strong with pan-India digital reach." },
+  { id: "jana",     name: "Jana Small Finance Bank",  logo: "🌿", minScore: 520, baseInterest: 16.5, processingFee: 2.0, mode: "Weekly UPI / Bi-weekly collect",  description: "MSME micro-loans for vendors, gig workers, and rural entrepreneurs with minimal documentation." },
+  { id: "ujjivan",  name: "Ujjivan Small Finance Bank",logo: "☀️", minScore: 480, baseInterest: 17.0, processingFee: 2.0, mode: "Daily/Weekly UPI Collect",        description: "Microfinance-grade loans for informal sector workers with daily or weekly repayments matching cash flow." },
+  // ── NBFCs ──
+  { id: "muthoot",  name: "Muthoot Finance",          logo: "💰", minScore: 500, baseInterest: 17.5, processingFee: 2.0, mode: "Daily UPI QR Deductions",         description: "No collateral required. Daily repayments computed from real-time sales velocity." },
+  { id: "bajaj",    name: "Bajaj Finserv",            logo: "⚡", minScore: 600, baseInterest: 15.0, processingFee: 1.75, mode: "Monthly EMI / Flexi-Loan",       description: "Flexi business loans with part-withdraw & part-repay. Best for boutique and seasonal businesses." },
+  { id: "indifi",   name: "Indifi Merchant Capital",  logo: "🚀", minScore: 450, baseInterest: 21.0, processingFee: 2.5, mode: "Daily UPI Split (5% QR sales)",  description: "Revenue-based financing for gig workers & high-frequency vendors. No fixed EMI — repay as you earn." },
+  { id: "creditseva",name:"CreditSeva NBFC",          logo: "🤝", minScore: 380, baseInterest: 24.0, processingFee: 3.0, mode: "Daily Micro-Debit (₹50–₹200)",   description: "Last-mile credit for very-first-time borrowers and informal vendors with minimal digital trail." }
 ];
 
 const sampleUploadFiles = {
+  // ── Kirana Store ──
   healthy_kirana: {
     name: "Sunita_Devi_BankStatement_Healthy_6Months.json",
     size: "142 KB",
@@ -185,6 +200,7 @@ const sampleUploadFiles = {
       growthRate: "-15.4%"
     }
   },
+  // ── Gig Worker ──
   erratic_gig: {
     name: "Vikram_Rathore_WalletStatement_Fluctuating.json",
     size: "84 KB",
@@ -201,6 +217,149 @@ const sampleUploadFiles = {
       ratingMetrics: "Aggregator Rating: 4.22/5 (Warning)",
       adbStability: "60%",
       growthRate: "-2.5%"
+    }
+  },
+  healthy_gig: {
+    name: "Vikram_Rathore_UberOla_HealthyPayout_6Months.json",
+    size: "91 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Vikram Rathore",
+      platform: "Uber/Ola Fleet",
+      analysisPeriod: "Past 6 Months",
+      averageDailyBalance: 4800,
+      totalInflows: 282000,
+      totalOutflows: 235000,
+      chequeBounces: 0,
+      weeklyPayoutsCount: 26,
+      ratingMetrics: "Aggregator Rating: 4.86/5 (Excellent)",
+      adbStability: "85%",
+      growthRate: "+6.8%"
+    }
+  },
+  // ── Street Vendor ──
+  healthy_vendor: {
+    name: "Ramesh_Kumar_UPI_Statement_6Months.json",
+    size: "67 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Ramesh Kumar",
+      bankName: "FINO Payments Bank",
+      analysisPeriod: "Past 6 Months",
+      averageDailyBalance: 2100,
+      totalInflows: 148000,
+      totalOutflows: 124000,
+      gstStatus: "None (Below GST threshold)",
+      chequeBounces: 0,
+      adbStability: "92%",
+      growthRate: "+7.5%"
+    }
+  },
+  stressed_vendor: {
+    name: "Ramesh_Kumar_UPI_StressedSeason.json",
+    size: "61 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Ramesh Kumar",
+      bankName: "FINO Payments Bank",
+      analysisPeriod: "Past 6 Months",
+      averageDailyBalance: 700,
+      totalInflows: 96000,
+      totalOutflows: 102000,
+      gstStatus: "None (Below GST threshold)",
+      chequeBounces: 1,
+      adbStability: "55%",
+      growthRate: "-8.3%"
+    }
+  },
+  // ── Farmer ──
+  healthy_farmer: {
+    name: "Harish_Patel_eNAM_Harvest_Statement.json",
+    size: "55 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Harish Patel",
+      bankName: "Bank of Baroda (Kisan Branch)",
+      analysisPeriod: "Past 12 Months",
+      averageDailyBalance: 18000,
+      totalInflows: 320000,
+      totalOutflows: 225000,
+      gstStatus: "None (Agriculture exempt)",
+      chequeBounces: 0,
+      pmKisanSubsidies: 3,
+      eNamReceipts: "₹2,35,000 (Verified)",
+      adbStability: "48%",
+      growthRate: "+4.2%"
+    }
+  },
+  // ── Designer Boutique ──
+  healthy_boutique: {
+    name: "Pooja_Sharma_Boutique_InvoiceStatement_6Months.json",
+    size: "118 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Pooja Sharma",
+      bankName: "HDFC Bank",
+      analysisPeriod: "Past 6 Months",
+      averageDailyBalance: 38500,
+      totalInflows: 828000,
+      totalOutflows: 621000,
+      gstStatus: "Verified GSTR-1 (Quarterly, on time)",
+      chequeBounces: 0,
+      adbStability: "88%",
+      growthRate: "+12.4%"
+    }
+  },
+  stressed_boutique: {
+    name: "Pooja_Sharma_Boutique_LowSeason_Shocks.json",
+    size: "112 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Pooja Sharma",
+      bankName: "HDFC Bank",
+      analysisPeriod: "Past 6 Months",
+      averageDailyBalance: 11000,
+      totalInflows: 490000,
+      totalOutflows: 512000,
+      gstStatus: "Verified GSTR-1 (1 late filing)",
+      chequeBounces: 1,
+      adbStability: "62%",
+      growthRate: "-5.1%"
+    }
+  },
+  // ── Freelancer ──
+  healthy_freelancer: {
+    name: "Aditya_Mehta_ProjectPayments_6Months.json",
+    size: "76 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Aditya Mehta",
+      bankName: "Kotak Mahindra Bank",
+      analysisPeriod: "Past 6 Months",
+      averageDailyBalance: 24000,
+      totalInflows: 582000,
+      totalOutflows: 398000,
+      gstStatus: "Verified GSTR-1 (Quarterly, on time)",
+      chequeBounces: 0,
+      adbStability: "78%",
+      growthRate: "+9.8%"
+    }
+  },
+  stressed_freelancer: {
+    name: "Aditya_Mehta_ProjectDrySpell_Statement.json",
+    size: "68 KB",
+    type: "application/json",
+    content: {
+      accountHolder: "Aditya Mehta",
+      bankName: "Kotak Mahindra Bank",
+      analysisPeriod: "Past 6 Months",
+      averageDailyBalance: 7200,
+      totalInflows: 280000,
+      totalOutflows: 305000,
+      gstStatus: "Verified GSTR-1 (2 late filings)",
+      chequeBounces: 0,
+      adbStability: "52%",
+      growthRate: "-11.2%"
     }
   }
 };

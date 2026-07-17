@@ -156,66 +156,26 @@ const personas = {
 
 // collaborated bank list
 const collaboratedBanks = [
-  {
-    id: "sbi",
-    name: "State Bank of India",
-    logo: "🏛️",
-    minScore: 720,
-    baseInterest: 10.5,
-    processingFee: 1.0,
-    mode: "Monthly NACH Auto-Debit",
-    description: "Lowest interest rate for highly consistent borrowers with active bank balances."
-  },
-  {
-    id: "hdfc",
-    name: "HDFC Bank",
-    logo: "🏢",
-    minScore: 750,
-    baseInterest: 11.2,
-    processingFee: 1.0,
-    mode: "Monthly NACH / Weekly UPI",
-    description: "Premium credit lines with extensive tenures and digital invoice linkages."
-  },
-  {
-    id: "icici",
-    name: "ICICI Bank",
-    logo: "💳",
-    minScore: 680,
-    baseInterest: 12.5,
-    processingFee: 1.5,
-    mode: "Monthly NACH / Weekly UPI",
-    description: "Flexible business loans with quick automated sanctions."
-  },
-  {
-    id: "federal",
-    name: "Federal Bank",
-    logo: "🏦",
-    minScore: 600,
-    baseInterest: 14.5,
-    processingFee: 2.0,
-    mode: "Weekly UPI QR Settlement",
-    description: "Sacheted repayments tailored to micro-merchants."
-  },
-  {
-    id: "muthoot",
-    name: "Muthoot Finance",
-    logo: "💰",
-    minScore: 500,
-    baseInterest: 17.5,
-    processingFee: 2.0,
-    mode: "Daily UPI QR Deductions",
-    description: "No collateral required. Repayments calculated daily matching sales velocity."
-  },
-  {
-    id: "indifi",
-    name: "Indifi Merchant Capital",
-    logo: "⚡",
-    minScore: 450,
-    baseInterest: 21.0,
-    processingFee: 2.5,
-    mode: "Daily UPI Split (5% QR sales)",
-    description: "Tailor-made for gig workers & small food vendors with high volume transaction logs."
-  }
+  // ── Public Sector Banks ──
+  { id: "sbi",       name: "State Bank of India",       logo: "🏛️", minScore: 720, baseInterest: 10.5, processingFee: 1.0,  mode: "Monthly NACH Auto-Debit",          description: "India's largest bank. Lowest rates for alternative-score borrowers with active balances." },
+  { id: "bob",       name: "Bank of Baroda",            logo: "🏦", minScore: 680, baseInterest: 11.0, processingFee: 1.0,  mode: "Monthly NACH Auto-Debit",          description: "Kisan & MSME-focused lending. Strong rural reach with agri-credit and farm loans." },
+  { id: "pnb",       name: "Punjab National Bank",      logo: "🏟️", minScore: 660, baseInterest: 11.5, processingFee: 1.25, mode: "Monthly NACH / Bi-monthly UPI",      description: "MSME credit for kirana stores, small factories and artisans." },
+  // ── Private Banks ──
+  { id: "hdfc",      name: "HDFC Bank",                 logo: "🏢", minScore: 750, baseInterest: 11.2, processingFee: 1.0,  mode: "Monthly NACH / Weekly UPI",         description: "Premium business credit lines with digital-first processing. Fastest disbursals for high scorers." },
+  { id: "icici",     name: "ICICI Bank",                logo: "💳", minScore: 680, baseInterest: 12.5, processingFee: 1.5,  mode: "Monthly NACH / Weekly UPI",         description: "Flexible MSME loans with quick automated sanctions and working-capital products." },
+  { id: "axis",      name: "Axis Bank",                 logo: "🔷", minScore: 700, baseInterest: 12.0, processingFee: 1.25, mode: "Monthly NACH / Fortnightly UPI",    description: "MSME Prime & Udyam credit products with doorstep banking and digital KYC." },
+  { id: "kotak",     name: "Kotak Mahindra Bank",       logo: "🟡", minScore: 720, baseInterest: 11.8, processingFee: 1.0,  mode: "Monthly NACH Auto-Debit",          description: "Zero-fee digital current accounts with integrated working-capital credit for freelancers." },
+  { id: "idfcfirst", name: "IDFC First Bank",           logo: "🔵", minScore: 640, baseInterest: 13.0, processingFee: 1.5,  mode: "Weekly UPI Settlement",            description: "Micro-business loans & monthly-income-linked credit with no prepayment penalty." },
+  { id: "rbl",       name: "RBL Bank",                  logo: "🔴", minScore: 620, baseInterest: 14.0, processingFee: 1.75, mode: "Weekly UPI QR Settlement",          description: "Merchant cash-advance and supply-chain finance for kirana & micro-retail businesses." },
+  // ── Small Finance Banks ──
+  { id: "federal",   name: "Federal Bank",              logo: "🏦", minScore: 600, baseInterest: 14.5, processingFee: 2.0,  mode: "Weekly UPI QR Settlement",         description: "Sachet repayments for micro-merchants. Kerala-strong with pan-India digital reach." },
+  { id: "jana",      name: "Jana Small Finance Bank",   logo: "🌿", minScore: 520, baseInterest: 16.5, processingFee: 2.0,  mode: "Weekly UPI / Bi-weekly collect",   description: "MSME micro-loans for vendors, gig workers and rural entrepreneurs with minimal docs." },
+  { id: "ujjivan",   name: "Ujjivan Small Finance Bank", logo: "☀️", minScore: 480, baseInterest: 17.0, processingFee: 2.0,  mode: "Daily/Weekly UPI Collect",         description: "Microfinance-grade loans for informal sector workers with daily repayments." },
+  // ── NBFCs ──
+  { id: "muthoot",   name: "Muthoot Finance",           logo: "💰", minScore: 500, baseInterest: 17.5, processingFee: 2.0,  mode: "Daily UPI QR Deductions",          description: "No collateral required. Daily repayments computed from real-time sales velocity." },
+  { id: "bajaj",     name: "Bajaj Finserv",             logo: "⚡", minScore: 600, baseInterest: 15.0, processingFee: 1.75, mode: "Monthly EMI / Flexi-Loan",          description: "Flexi business loans with part-withdraw & part-repay. Best for boutique & seasonal businesses." },
+  { id: "indifi",    name: "Indifi Merchant Capital",   logo: "🚀", minScore: 450, baseInterest: 21.0, processingFee: 2.5,  mode: "Daily UPI Split (5% QR sales)",   description: "Revenue-based financing for gig workers & vendors. No fixed EMI — repay as you earn." },
+  { id: "creditseva",name: "CreditSeva NBFC",           logo: "🤝", minScore: 380, baseInterest: 24.0, processingFee: 3.0,  mode: "Daily Micro-Debit (₹50–₹200)",    description: "Last-mile credit for very-first-time borrowers and informal vendors." }
 ];
 
 function resolvePersona(id) {
