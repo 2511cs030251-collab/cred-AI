@@ -24,7 +24,9 @@ const personas = {
       tenure: 3,
       purpose: "Purchase high-quality brass kettles and bulk tea/milk inventory for winter rush"
     },
-    metrics: { adb: 1400, monthlyInflow: 24800, inflowStability: 94, growthTrend: 6.2, repaymentCapacity: 88 }
+    metrics: { adb: 1400, monthlyInflow: 24800, inflowStability: 94, growthTrend: 6.2, repaymentCapacity: 88 },
+    monthlyOutflow: 18000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   kirana: {
     id: "kirana",
@@ -47,7 +49,9 @@ const personas = {
       tenure: 12,
       purpose: "Inventory expansion to stock fast-moving consumer goods and digital billing counter setup"
     },
-    metrics: { adb: 24500, monthlyInflow: 225000, inflowStability: 91, growthTrend: 8.5, repaymentCapacity: 92 }
+    metrics: { adb: 24500, monthlyInflow: 225000, inflowStability: 91, growthTrend: 8.5, repaymentCapacity: 92 },
+    monthlyOutflow: 182000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   },
   gig: {
     id: "gig",
@@ -69,7 +73,9 @@ const personas = {
       tenure: 6,
       purpose: "Major vehicle servicing and replacement of all four tires before monsoon"
     },
-    metrics: { adb: 3200, monthlyInflow: 46200, inflowStability: 85, growthTrend: 3.1, repaymentCapacity: 79 }
+    metrics: { adb: 3200, monthlyInflow: 46200, inflowStability: 85, growthTrend: 3.1, repaymentCapacity: 79 },
+    monthlyOutflow: 38000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   farmer: {
     id: "farmer",
@@ -91,7 +97,9 @@ const personas = {
       tenure: 9,
       purpose: "Fertilizer purchase and high-yield seed procurement for upcoming Kharif sowing season"
     },
-    metrics: { adb: 12500, monthlyInflow: 18400, inflowStability: 52, growthTrend: 4.8, repaymentCapacity: 75 }
+    metrics: { adb: 12500, monthlyInflow: 18400, inflowStability: 52, growthTrend: 4.8, repaymentCapacity: 75 },
+    monthlyOutflow: 12000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   boutique: {
     id: "boutique",
@@ -114,7 +122,9 @@ const personas = {
       tenure: 12,
       purpose: "Procurement of specialized sewing machines and digital sewing pattern software"
     },
-    metrics: { adb: 29000, monthlyInflow: 138000, inflowStability: 88, growthTrend: 12.4, repaymentCapacity: 86 }
+    metrics: { adb: 29000, monthlyInflow: 138000, inflowStability: 88, growthTrend: 12.4, repaymentCapacity: 86 },
+    monthlyOutflow: 98000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   },
   freelancer: {
     id: "freelancer",
@@ -137,7 +147,9 @@ const personas = {
       tenure: 12,
       purpose: "MacBook Pro upgrade and co-working space annual membership"
     },
-    metrics: { adb: 18000, monthlyInflow: 97000, inflowStability: 78, growthTrend: 9.8, repaymentCapacity: 84 }
+    metrics: { adb: 18000, monthlyInflow: 97000, inflowStability: 78, growthTrend: 9.8, repaymentCapacity: 84 },
+    monthlyOutflow: 65000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   }
 };
 
@@ -537,37 +549,160 @@ function formatDate(date) {
 // ==========================================
 function evaluateCreditProfile(persona, transactions, customUploadContent = null) {
   const isCustom = !!customUploadContent;
-  const adb = isCustom ? customUploadContent.averageDailyBalance : (persona.metrics.adb || 2000);
-  const totalInflow = isCustom ? customUploadContent.totalInflows / 6 : (persona.metrics.monthlyInflow || 30000);
-  const growth = isCustom ? parseFloat(customUploadContent.growthRate) : (persona.metrics.growthTrend || 5.0);
-  const stability = isCustom ? parseInt(customUploadContent.adbStability) : (persona.metrics.inflowStability || 80);
-  const hasGst = isCustom ? (customUploadContent.gstStatus && !customUploadContent.gstStatus.includes("None")) : persona.hasGst;
-  const bounces = isCustom ? (customUploadContent.chequeBounces || 0) : 0;
   
-  let volScore = totalInflow > 150000 ? 95 : totalInflow > 80000 ? 85 : totalInflow > 40000 ? 75 : totalInflow > 20000 ? 65 : 45;
+  let adb = isCustom ? customUploadContent.averageDailyBalance : (persona.metrics?.adb || 2000);
+  let totalInflow = isCustom ? customUploadContent.totalInflows / 6 : (persona.metrics?.monthlyInflow || 30000);
+  let growth = isCustom ? parseFloat(customUploadContent.growthRate) : (persona.metrics?.growthTrend || 5.0);
+  let stability = isCustom ? parseInt(customUploadContent.adbStability) : (persona.metrics?.inflowStability || 80);
+  let hasGst = isCustom ? (customUploadContent.gstStatus && !customUploadContent.gstStatus.includes("None")) : persona.hasGst;
+  let bounces = isCustom ? (customUploadContent.chequeBounces || 0) : 0;
+  
+  let computedOutflow = isCustom ? (customUploadContent.totalOutflows ? (customUploadContent.totalOutflows / 6) : (customUploadContent.monthlyOutflow || customUploadContent.monthlyExpenses || totalInflow * 0.75)) : (persona.monthlyOutflow || totalInflow * 0.75);
+  let activeCreds = isCustom ? (customUploadContent.credentials || {
+    panStatus: customUploadContent.panStatus || (customUploadContent.panVerified ? "Verified" : "Unverified"),
+    aadhaarStatus: customUploadContent.aadhaarStatus || (customUploadContent.aadhaarVerified ? "Verified" : "Unverified"),
+    gstStatus: customUploadContent.gstStatus ? (customUploadContent.gstStatus.includes("Verified") ? "Verified" : "Unverified") : (hasGst ? "Verified" : "N/A"),
+    bankLinked: customUploadContent.bankLinked !== undefined ? customUploadContent.bankLinked : true
+  }) : (persona.credentials || { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: hasGst ? "Verified" : "N/A", bankLinked: true });
+
+  // If transactions are provided, calculate metrics dynamically from transaction history!
+  if (transactions && Array.isArray(transactions) && transactions.length > 0) {
+    let depositSum = 0;
+    let withdrawalSum = 0;
+    let bounceCount = 0;
+    let successCount = 0;
+    
+    const sortedTx = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    let currentBalance = adb || 10000;
+    let dailyBalances = {};
+    
+    sortedTx.forEach(tx => {
+      const txAmount = parseFloat(tx.amount) || 0;
+      if (tx.type === 'Deposit') {
+        depositSum += txAmount;
+        currentBalance += txAmount;
+      } else if (tx.type === 'Withdrawal') {
+        withdrawalSum += txAmount;
+        currentBalance -= txAmount;
+      }
+      
+      const desc = (tx.description || "").toLowerCase();
+      const status = (tx.status || "").toLowerCase();
+      if (desc.includes("bounce") || desc.includes("fail") || desc.includes("returned") || desc.includes("insufficient") || status === 'failed') {
+        bounceCount++;
+      } else {
+        successCount++;
+      }
+      
+      dailyBalances[tx.date] = currentBalance;
+    });
+    
+    totalInflow = depositSum / 6;
+    computedOutflow = withdrawalSum / 6;
+    bounces = bounceCount;
+    
+    const dates = Object.keys(dailyBalances);
+    if (dates.length > 0) {
+      let sum = 0;
+      dates.forEach(d => sum += dailyBalances[d]);
+      adb = sum / dates.length;
+    } else {
+      adb = currentBalance;
+    }
+    
+    const totalTx = sortedTx.length;
+    const successRatio = totalTx > 0 ? (successCount / totalTx) : 1.0;
+    stability = Math.min(100, Math.round(successRatio * 100));
+  }
+  
+  // 1. Transaction Volume Score (Max 100)
+  let volScore = 45;
+  if (totalInflow > 150000) volScore = 95;
+  else if (totalInflow > 80000) volScore = 85;
+  else if (totalInflow > 40000) volScore = 75;
+  else if (totalInflow > 20000) volScore = 65;
+  
+  // 2. Cash Flow Stability Score (Max 150)
   let stabScore = Math.min(150, Math.floor((stability / 100) * 150));
-  let perfScore = growth > 10 ? 145 : growth > 5 ? 125 : growth > 0 ? 100 : growth > -10 ? 70 : 40;
   
+  // 3. Business Performance Score (Max 150)
+  let perfScore = 80;
+  if (growth > 10) perfScore = 145;
+  else if (growth > 5) perfScore = 125;
+  else if (growth > 0) perfScore = 100;
+  else if (growth > -10) perfScore = 70;
+  else perfScore = 40;
+  
+  // 4. Financial Discipline & Expenditure (Max 180)
   let adbToInflowRatio = totalInflow > 0 ? (adb / totalInflow) : 0;
-  let discScore = adbToInflowRatio > 0.20 ? 160 : adbToInflowRatio > 0.10 ? 140 : adbToInflowRatio > 0.05 ? 110 : adbToInflowRatio > 0.02 ? 85 : 55;
-  discScore = Math.max(30, discScore - (bounces * 40));
+  let adbScore = 40;
+  if (adbToInflowRatio > 0.20) adbScore = 120;
+  else if (adbToInflowRatio > 0.10) adbScore = 100;
+  else if (adbToInflowRatio > 0.05) adbScore = 80;
+  else if (adbToInflowRatio > 0.02) adbScore = 60;
   
-  let digScore = 60;
-  if (persona.upiRatio > 0.85) digScore += 20;
-  else if (persona.upiRatio > 0.50) digScore += 10;
-  if (hasGst) digScore += 25;
-  if (persona.utilityGrade === "A+" || persona.utilityGrade === "A") digScore += 15;
+  const expenseRatio = totalInflow > 0 ? (computedOutflow / totalInflow) : 1;
+  let expenseScore = 20;
+  if (expenseRatio <= 0.60) expenseScore = 60;
+  else if (expenseRatio <= 0.80) expenseScore = 45;
+  else if (expenseRatio <= 0.90) expenseScore = 30;
+  else if (expenseRatio > 0.95) expenseScore = 0;
+  
+  let discScore = adbScore + expenseScore;
+  if (expenseRatio > 0.95) {
+    discScore = Math.max(10, discScore - 30);
+  }
+  
+  discScore = Math.max(20, discScore - (bounces * 45));
+  discScore = Math.min(180, discScore);
+  
+  // 5. Digital Footprint & Verified Credentials Score (Max 120)
+  let digBaseScore = 50;
+  if (persona.upiRatio > 0.85) digBaseScore += 25;
+  else if (persona.upiRatio > 0.50) digBaseScore += 15;
+  
+  if (persona.utilityGrade === "A+" || persona.utilityGrade === "A") digBaseScore += 15;
+  else if (persona.utilityGrade === "B+" || persona.utilityGrade === "B") digBaseScore += 10;
+  
+  let credScore = 10;
+  let hasUnverifiedCritical = false;
+  
+  if (activeCreds.panStatus === "Verified") credScore += 10;
+  else if (activeCreds.panStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  if (activeCreds.aadhaarStatus === "Verified") credScore += 10;
+  else if (activeCreds.aadhaarStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  if (activeCreds.gstStatus === "Verified" || activeCreds.gstStatus === "N/A") credScore += 10;
+  else if (activeCreds.gstStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  let digScore = digBaseScore + credScore;
+  if (hasUnverifiedCritical) {
+    digScore = Math.max(10, digScore - 80);
+  }
   digScore = Math.min(120, digScore);
   
   const rawSum = volScore + stabScore + perfScore + discScore + digScore;
   const pragatiScore = Math.round((rawSum / 700) * 1000);
   
-  let tier = "Medium Risk", tierClass = "tier-average";
-  if (pragatiScore >= 850) { tier = "Excellent"; tierClass = "tier-excellent"; }
-  else if (pragatiScore >= 700) { tier = "Low Risk"; tierClass = "tier-good"; }
-  else if (pragatiScore >= 550) { tier = "Medium Risk"; tierClass = "tier-average"; }
-  else if (pragatiScore >= 350) { tier = "High Risk"; tierClass = "tier-poor"; }
-  else { tier = "Very High Risk"; tierClass = "tier-poor"; }
+  let tier = "Average";
+  let tierClass = "tier-average";
+  if (pragatiScore >= 850) {
+    tier = "Excellent";
+    tierClass = "tier-excellent";
+  } else if (pragatiScore >= 700) {
+    tier = "Low Risk";
+    tierClass = "tier-good";
+  } else if (pragatiScore >= 550) {
+    tier = "Medium Risk";
+    tierClass = "tier-average";
+  } else if (pragatiScore >= 350) {
+    tier = "High Risk";
+    tierClass = "tier-poor";
+  } else {
+    tier = "Very High Risk";
+    tierClass = "tier-poor";
+  }
   
   const baselines = { vol: 70, stab: 100, perf: 95, disc: 110, dig: 80 };
   const shapWeights = [
@@ -584,9 +719,28 @@ function evaluateCreditProfile(persona, transactions, customUploadContent = null
   } else {
     insights.push({ type: "positive", title: "Excellent Inflow Consistency", desc: "Your steady daily digital inflows indicate highly predictable revenues." });
   }
+  if (adbToInflowRatio < 0.05) {
+    insights.push({ type: "info", title: "Increase Cash Reserves", desc: "Aim to maintain at least 5% of monthly inflows as a daily balance." });
+  } else {
+    insights.push({ type: "positive", title: "Healthy Cash Buffers", desc: "Strong average daily balance buffers against sudden slowdowns." });
+  }
+  if (activeCreds.gstStatus === "Verified") {
+    insights.push({ type: "positive", title: "GST Compliance Bonus", desc: "Active GST status confirms tax compliance and acts as verified profile strength." });
+  }
+  if (hasUnverifiedCritical) {
+    insights.push({ type: "info", title: "Verify KYC Credentials", desc: "Unverified PAN or Aadhaar credentials limit your credit potential." });
+  }
+  if (expenseRatio > 0.90) {
+    insights.push({ type: "info", title: "Optimize Expenditures", desc: "High monthly expenditures (spending " + Math.round(expenseRatio * 100) + "% of inflows) compress your repayment buffer." });
+  } else if (expenseRatio <= 0.70) {
+    insights.push({ type: "positive", title: "Strong Savings Surplus", desc: "Low monthly expenditure ratio leaves a healthy cash buffer for loan repayments." });
+  }
   
   return {
-    pragatiScore, tier, tierClass, rawSum,
+    pragatiScore,
+    tier,
+    tierClass,
+    rawSum,
     subscores: {
       volume: Math.round((volScore / 100) * 100),
       stability: Math.round((stabScore / 150) * 100),
@@ -594,8 +748,18 @@ function evaluateCreditProfile(persona, transactions, customUploadContent = null
       discipline: Math.round((discScore / 180) * 100),
       digital: Math.round((digScore / 120) * 100)
     },
-    shapWeights, insights,
-    metrics: { adb, totalInflow, growth, stability, bounces }
+    shapWeights,
+    insights,
+    metrics: { 
+      adb: Math.round(adb), 
+      totalInflow: Math.round(totalInflow), 
+      growth, 
+      stability, 
+      bounces, 
+      totalOutflow: Math.round(computedOutflow),
+      expenseRatio: parseFloat(expenseRatio.toFixed(2)),
+      credentials: activeCreds
+    }
   };
 }
 
@@ -896,12 +1060,25 @@ async function initApp() {
   }
   
   const custSales = document.getElementById('cust-sales');
+  const custExpenses = document.getElementById('cust-expenses');
   const custUpi = document.getElementById('cust-upi');
   const custAdb = document.getElementById('cust-adb');
-  if (custSales && custUpi && custAdb) {
+  const custTxCount = document.getElementById('cust-tx-count');
+  
+  if (custSales) {
     custSales.addEventListener('input', () => { document.getElementById('cust-sales-val').innerText = '₹' + parseInt(custSales.value).toLocaleString('en-IN'); });
+  }
+  if (custExpenses) {
+    custExpenses.addEventListener('input', () => { document.getElementById('cust-expenses-val').innerText = '₹' + parseInt(custExpenses.value).toLocaleString('en-IN'); });
+  }
+  if (custUpi) {
     custUpi.addEventListener('input', () => { document.getElementById('cust-upi-val').innerText = custUpi.value + '%'; });
+  }
+  if (custAdb) {
     custAdb.addEventListener('input', () => { document.getElementById('cust-adb-val').innerText = '₹' + parseInt(custAdb.value).toLocaleString('en-IN'); });
+  }
+  if (custTxCount) {
+    custTxCount.addEventListener('input', () => { document.getElementById('cust-tx-count-val').innerText = custTxCount.value + ' Tx'; });
   }
   
   const btnCancelCustom = document.getElementById('btn-cancel-custom');
@@ -1067,24 +1244,32 @@ function generateCustomProfile() {
   const sectorLabel = document.getElementById('cust-sector').options[document.getElementById('cust-sector').selectedIndex].text;
   const utility = document.getElementById('cust-utility').value;
   const sales = parseInt(document.getElementById('cust-sales').value);
+  const expenses = parseInt(document.getElementById('cust-expenses').value);
   const upi = parseInt(document.getElementById('cust-upi').value);
   const adb = parseInt(document.getElementById('cust-adb').value);
+  const txCount = parseInt(document.getElementById('cust-tx-count').value);
+  const bounces = parseInt(document.getElementById('cust-bounces').value);
+  const panStatus = document.getElementById('cust-pan').value;
+  const aadhaarStatus = document.getElementById('cust-aadhaar').value;
+  const gstStatus = document.getElementById('cust-gst-status').value;
   const customId = `custom_${Date.now()}`;
   
   const newPersona = {
     id: customId, name, avatar: "👤", businessName: `${name} Store`, roleName: sectorLabel,
     location: "Kalyan, Maharashtra",
-    description: `Custom business assessment profile. Monthly sales: ₹${sales.toLocaleString('en-IN')}.`,
+    description: `Custom business assessment profile. Monthly inflows: ₹${sales.toLocaleString('en-IN')}. Monthly expenditures: ₹${expenses.toLocaleString('en-IN')}.`,
     baseMonthlySales: sales, upiRatio: upi / 100,
-    avgDailyTxCount: sector === 'vendor' ? 40 : 80, averageDailyBalance: adb,
-    hasGst: sales * 12 > 2000000, utilityGrade: utility, sector,
+    avgDailyTxCount: Math.round(txCount / 30), averageDailyBalance: adb,
+    hasGst: gstStatus === 'Verified', utilityGrade: utility, sector,
     typicalLoanRequest: { amount: Math.round(sales * 0.8), tenure: 12, purpose: "Business Inventory" },
-    metrics: { adb, monthlyInflow: sales, inflowStability: 85, growthTrend: 6.5 }
+    metrics: { adb, monthlyInflow: sales, inflowStability: 85, growthTrend: 6.5 },
+    monthlyOutflow: expenses,
+    credentials: { panStatus, aadhaarStatus, gstStatus, bankLinked: true }
   };
   
   personasMap[customId] = newPersona;
   activePersona = newPersona;
-  generateCustomTransactions(newPersona);
+  generateCustomTransactions(newPersona, expenses, bounces, txCount);
   
   document.getElementById('custom-builder-form').style.display = 'none';
   customUploads = [];
@@ -1092,21 +1277,48 @@ function generateCustomProfile() {
   showToast(`Custom Profile '${name}' generated!`, 'success');
 }
 
-function generateCustomTransactions(persona) {
+function generateCustomTransactions(persona, expenses = null, bounces = 0, txCount = 60) {
   const txList = [];
   const currentDate = new Date();
-  for (let i = 180; i >= 0; i--) {
+  const baseExpenses = expenses !== null ? expenses : (persona.monthlyOutflow || persona.baseMonthlySales * 0.75);
+  const dailyExpense = baseExpenses / 30;
+  const dailySales = (persona.baseMonthlySales / 30);
+  
+  const totalDays = 180;
+  const totalTxExpected = txCount * 6;
+  
+  let bouncesRemaining = bounces * 6;
+  
+  for (let i = totalDays; i >= 0; i--) {
     const txDate = new Date();
     txDate.setDate(currentDate.getDate() - i);
-    const dailySales = (persona.baseMonthlySales / 30);
-    if (Math.random() > 0.2) {
-      const upiDeposit = Math.round(dailySales * (Math.random() * 0.4 + 0.8) * persona.upiRatio);
+    
+    // Inflow
+    if (Math.random() > 0.15) {
+      const upiDeposit = Math.round(dailySales * (Math.random() * 0.4 + 0.8) * (persona.upiRatio || 0.8));
       if (upiDeposit > 0) {
         txList.push({ date: formatDate(txDate), type: "Deposit", description: "UPI QR Sales Settlement", category: "UPI Customer Payment", amount: upiDeposit, status: "Success" });
       }
     }
-    if (txDate.getDay() === 1) {
-      txList.push({ date: formatDate(txDate), type: "Withdrawal", description: "UPI Supplier Payout", category: "Supplier Settlement", amount: Math.round(dailySales * 4), status: "Success" });
+    
+    // Outflow
+    if (Math.random() > 0.25) {
+      const expenseAmount = Math.round(dailyExpense * (Math.random() * 0.4 + 0.8));
+      if (expenseAmount > 0) {
+        let isBounce = false;
+        if (bouncesRemaining > 0 && Math.random() < 0.1) {
+          isBounce = true;
+          bouncesRemaining--;
+        }
+        txList.push({ 
+          date: formatDate(txDate), 
+          type: "Withdrawal", 
+          description: isBounce ? "Auto-Debit Failure: Insufficient Funds" : "UPI Supplier Settlement", 
+          category: isBounce ? "Others" : "Supplier Settlement", 
+          amount: expenseAmount, 
+          status: isBounce ? "Failed" : "Success" 
+        });
+      }
     }
   }
   generatedTxCache[persona.id] = txList.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -1146,19 +1358,27 @@ async function renderBorrowerDashboard() {
     const count = customUploads.length;
     let sumAdb = 0;
     let sumInflows = 0;
+    let sumOutflows = 0;
     let sumBounces = 0;
     let hasGst = false;
     let stabilitySum = 0;
     let growthSum = 0;
     
+    let panVerifiedCount = 0;
+    let aadhaarVerifiedCount = 0;
+    
     customUploads.forEach(file => {
       const content = file.content;
       sumAdb += content.averageDailyBalance || 0;
       sumInflows += content.totalInflows || 0;
+      sumOutflows += content.totalOutflows || (content.totalInflows * 0.75) || 0;
       sumBounces += content.chequeBounces || 0;
       if (content.gstStatus && !content.gstStatus.includes("None")) {
         hasGst = true;
       }
+      if (content.panStatus === 'Verified' || content.panVerified) panVerifiedCount++;
+      if (content.aadhaarStatus === 'Verified' || content.aadhaarVerified) aadhaarVerifiedCount++;
+      
       stabilitySum += parseFloat((content.adbStability || "80").toString().replace('%',''));
       growthSum += parseFloat((content.growthRate || "0").toString().replace('%',''));
     });
@@ -1166,12 +1386,22 @@ async function renderBorrowerDashboard() {
     consolidatedUpload = {
       averageDailyBalance: Math.round(sumAdb / count),
       totalInflows: sumInflows,
+      totalOutflows: sumOutflows,
       chequeBounces: sumBounces,
       gstStatus: hasGst ? "Verified GSTR-3B" : "None",
       adbStability: Math.round(stabilitySum / count) + "%",
-      growthRate: (growthSum / count).toFixed(1) + "%"
+      growthRate: (growthSum / count).toFixed(1) + "%",
+      credentials: {
+        panStatus: panVerifiedCount >= (count / 2) ? "Verified" : "Unverified",
+        aadhaarStatus: aadhaarVerifiedCount >= (count / 2) ? "Verified" : "Unverified",
+        gstStatus: hasGst ? "Verified" : "N/A",
+        bankLinked: true
+      }
     };
   }
+  
+  const transactions = await getTransactionsForPersona(activePersona.id);
+  currentTransactions = transactions;
   
   if (isServerOnline) {
     try {
@@ -1180,29 +1410,22 @@ async function renderBorrowerDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           personaId: activePersona.id,
-          customUploadContent: consolidatedUpload
+          customUploadContent: consolidatedUpload,
+          transactions: transactions,
+          credentials: consolidatedUpload ? consolidatedUpload.credentials : activePersona.credentials,
+          totalOutflow: consolidatedUpload ? consolidatedUpload.totalOutflows : activePersona.monthlyOutflow
         })
       });
       const data = await res.json();
-      evaluation = {
-        pragatiScore: data.pragatiScore,
-        tier: data.tier,
-        tierClass: data.tierClass,
-        subscores: data.subscores,
-        shapWeights: data.shapWeights,
-        insights: data.insights,
-        metrics: data.metrics
-      };
+      evaluation = data;
     } catch (e) {
       console.warn("API score calculation failed, falling back to local calculation.", e);
-      evaluation = evaluateCreditProfile(activePersona, [], consolidatedUpload);
+      evaluation = evaluateCreditProfile(activePersona, transactions, consolidatedUpload);
     }
   } else {
-    evaluation = evaluateCreditProfile(activePersona, [], consolidatedUpload);
+    evaluation = evaluateCreditProfile(activePersona, transactions, consolidatedUpload);
   }
   renderUploadZone();
-  const transactions = await getTransactionsForPersona(activePersona.id);
-  currentTransactions = transactions;
   
   animateScoreGauge(evaluation.pragatiScore, evaluation.tier, evaluation.tierClass);
   const projectedCircle = document.querySelector('.score-projected-circle');
@@ -1220,6 +1443,35 @@ async function renderBorrowerDashboard() {
   updateSubscoreBar('score-perf', evaluation.subscores.performance);
   updateSubscoreBar('score-disc', evaluation.subscores.discipline);
   updateSubscoreBar('score-dig', evaluation.subscores.digital);
+  
+  // Render credentials badges dynamically
+  const badgesContainer = document.getElementById('bor-credentials-badges');
+  if (badgesContainer) {
+    const creds = evaluation.metrics?.credentials || activePersona.credentials || { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: activePersona.hasGst ? "Verified" : "N/A" };
+    let html = '';
+    
+    if (creds.panStatus === 'Verified') {
+      html += `<span class="badge" style="background: rgba(34, 197, 94, 0.1); color: var(--success); border-color: rgba(34, 197, 94, 0.3); display: inline-flex; align-items: center; gap: 0.25rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;"><polyline points="20 6 9 17 4 12"/></svg>PAN: Verified</span>`;
+    } else {
+      html += `<span class="badge" style="background: rgba(244, 63, 94, 0.1); color: var(--danger); border-color: rgba(244, 63, 94, 0.3); display: inline-flex; align-items: center; gap: 0.25rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>PAN: Unverified</span>`;
+    }
+    
+    if (creds.aadhaarStatus === 'Verified') {
+      html += `<span class="badge" style="background: rgba(34, 197, 94, 0.1); color: var(--success); border-color: rgba(34, 197, 94, 0.3); display: inline-flex; align-items: center; gap: 0.25rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;"><polyline points="20 6 9 17 4 12"/></svg>Aadhaar: Verified</span>`;
+    } else {
+      html += `<span class="badge" style="background: rgba(244, 63, 94, 0.1); color: var(--danger); border-color: rgba(244, 63, 94, 0.3); display: inline-flex; align-items: center; gap: 0.25rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Aadhaar: Unverified</span>`;
+    }
+    
+    if (creds.gstStatus === 'Verified') {
+      html += `<span class="badge" style="background: rgba(34, 197, 94, 0.1); color: var(--success); border-color: rgba(34, 197, 94, 0.3); display: inline-flex; align-items: center; gap: 0.25rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;"><polyline points="20 6 9 17 4 12"/></svg>GSTIN: Verified</span>`;
+    } else if (creds.gstStatus === 'Unverified') {
+      html += `<span class="badge" style="background: rgba(244, 63, 94, 0.1); color: var(--danger); border-color: rgba(244, 63, 94, 0.3); display: inline-flex; align-items: center; gap: 0.25rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>GSTIN: Unverified</span>`;
+    } else {
+      html += `<span class="badge" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border-color: var(--border-muted); display: inline-flex; align-items: center; gap: 0.25rem;">GSTIN: Exempt</span>`;
+    }
+    
+    badgesContainer.innerHTML = html;
+  }
   
   const flowChartCtx = document.getElementById('bor-flow-chart').getContext('2d');
   renderCashFlowChart(flowChartCtx, transactions);
@@ -1555,7 +1807,16 @@ function handleSimulatedUpload(fileKey) {
     showToast(`File ${file.name} is already uploaded.`, 'info');
     return;
   }
-  customUploads.push({ key: fileKey, name: file.name, size: file.size, content: file.content });
+  
+  // Inject default verified credentials if they are missing
+  const content = {
+    panStatus: "Verified",
+    aadhaarStatus: "Verified",
+    bankLinked: true,
+    ...file.content
+  };
+  
+  customUploads.push({ key: fileKey, name: file.name, size: file.size, content: content });
   renderBorrowerDashboard();
   showToast(`Added statement: ${file.name}. Score recalculated.`, 'success');
 }

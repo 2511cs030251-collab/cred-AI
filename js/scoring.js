@@ -1,183 +1,192 @@
 // Samriddhi AI - Credit Scoring Engine
 
 export function evaluateCreditProfile(persona, transactions, customUploadContent = null) {
-  // Use uploaded statement details if provided (simulating drag-drop file calculation)
   const isCustom = !!customUploadContent;
   
-  const adb = isCustom ? customUploadContent.averageDailyBalance : (persona.metrics.adb || 2000);
-  const totalInflow = isCustom ? customUploadContent.totalInflows / 6 : (persona.metrics.monthlyInflow || 30000);
-  const growth = isCustom ? parseFloat(customUploadContent.growthRate) : (persona.metrics.growthTrend || 5.0);
-  const stability = isCustom ? parseInt(customUploadContent.adbStability) : (persona.metrics.inflowStability || 80);
+  let adb = isCustom ? customUploadContent.averageDailyBalance : (persona.metrics?.adb || 2000);
+  let totalInflow = isCustom ? customUploadContent.totalInflows / 6 : (persona.metrics?.monthlyInflow || 30000);
+  let growth = isCustom ? parseFloat(customUploadContent.growthRate) : (persona.metrics?.growthTrend || 5.0);
+  let stability = isCustom ? parseInt(customUploadContent.adbStability) : (persona.metrics?.inflowStability || 80);
+  let hasGst = isCustom ? (customUploadContent.gstStatus && !customUploadContent.gstStatus.includes("None")) : persona.hasGst;
+  let bounces = isCustom ? (customUploadContent.chequeBounces || 0) : 0;
   
-  const hasGst = isCustom ? (customUploadContent.gstStatus && !customUploadContent.gstStatus.includes("N/A") && !customUploadContent.gstStatus.includes("None")) : persona.hasGst;
-  const bounces = isCustom ? (customUploadContent.chequeBounces || 0) : (persona.id === "gig" ? 0 : 0); // Mock data bounces
+  let computedOutflow = isCustom ? (customUploadContent.totalOutflows ? (customUploadContent.totalOutflows / 6) : (customUploadContent.monthlyOutflow || customUploadContent.monthlyExpenses || totalInflow * 0.75)) : (persona.monthlyOutflow || totalInflow * 0.75);
+  let activeCreds = isCustom ? (customUploadContent.credentials || {
+    panStatus: customUploadContent.panStatus || (customUploadContent.panVerified ? "Verified" : "Unverified"),
+    aadhaarStatus: customUploadContent.aadhaarStatus || (customUploadContent.aadhaarVerified ? "Verified" : "Unverified"),
+    gstStatus: customUploadContent.gstStatus ? (customUploadContent.gstStatus.includes("Verified") ? "Verified" : "Unverified") : (hasGst ? "Verified" : "N/A"),
+    bankLinked: customUploadContent.bankLinked !== undefined ? customUploadContent.bankLinked : true
+  }) : (persona.credentials || { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: hasGst ? "Verified" : "N/A", bankLinked: true });
+
+  // If transactions are provided, calculate metrics dynamically from transaction history!
+  if (transactions && Array.isArray(transactions) && transactions.length > 0) {
+    let depositSum = 0;
+    let withdrawalSum = 0;
+    let bounceCount = 0;
+    let successCount = 0;
+    
+    const sortedTx = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    let currentBalance = adb || 10000;
+    let dailyBalances = {};
+    
+    sortedTx.forEach(tx => {
+      const txAmount = parseFloat(tx.amount) || 0;
+      if (tx.type === 'Deposit') {
+        depositSum += txAmount;
+        currentBalance += txAmount;
+      } else if (tx.type === 'Withdrawal') {
+        withdrawalSum += txAmount;
+        currentBalance -= txAmount;
+      }
+      
+      const desc = (tx.description || "").toLowerCase();
+      const status = (tx.status || "").toLowerCase();
+      if (desc.includes("bounce") || desc.includes("fail") || desc.includes("returned") || desc.includes("insufficient") || status === 'failed') {
+        bounceCount++;
+      } else {
+        successCount++;
+      }
+      
+      dailyBalances[tx.date] = currentBalance;
+    });
+    
+    totalInflow = depositSum / 6;
+    computedOutflow = withdrawalSum / 6;
+    bounces = bounceCount;
+    
+    const dates = Object.keys(dailyBalances);
+    if (dates.length > 0) {
+      let sum = 0;
+      dates.forEach(d => sum += dailyBalances[d]);
+      adb = sum / dates.length;
+    } else {
+      adb = currentBalance;
+    }
+    
+    const totalTx = sortedTx.length;
+    const successRatio = totalTx > 0 ? (successCount / totalTx) : 1.0;
+    stability = Math.min(100, Math.round(successRatio * 100));
+  }
   
   // 1. Transaction Volume Score (Max 100)
-  let volScore = 0;
+  let volScore = 45;
   if (totalInflow > 150000) volScore = 95;
   else if (totalInflow > 80000) volScore = 85;
   else if (totalInflow > 40000) volScore = 75;
   else if (totalInflow > 20000) volScore = 65;
-  else volScore = 45;
   
   // 2. Cash Flow Stability Score (Max 150)
-  // Higher stability = lower volatility
   let stabScore = Math.min(150, Math.floor((stability / 100) * 150));
   
   // 3. Business Performance Score (Max 150)
-  // Evaluates growth trend and volume
   let perfScore = 80;
   if (growth > 10) perfScore = 145;
   else if (growth > 5) perfScore = 125;
   else if (growth > 0) perfScore = 100;
   else if (growth > -10) perfScore = 70;
-  else perfScore = 40; // Negative growth penalizes
+  else perfScore = 40;
   
-  // 4. Financial Discipline Score (Max 180)
-  // Based on Average Daily Balance (ADB) and cheque bounces
+  // 4. Financial Discipline & Expenditure (Max 180)
   let adbToInflowRatio = totalInflow > 0 ? (adb / totalInflow) : 0;
-  let discScore = 100;
+  let adbScore = 40;
+  if (adbToInflowRatio > 0.20) adbScore = 120;
+  else if (adbToInflowRatio > 0.10) adbScore = 100;
+  else if (adbToInflowRatio > 0.05) adbScore = 80;
+  else if (adbToInflowRatio > 0.02) adbScore = 60;
   
-  if (adbToInflowRatio > 0.20) discScore = 160;
-  else if (adbToInflowRatio > 0.10) discScore = 140;
-  else if (adbToInflowRatio > 0.05) discScore = 110;
-  else if (adbToInflowRatio > 0.02) discScore = 85;
-  else discScore = 55;
+  const expenseRatio = totalInflow > 0 ? (computedOutflow / totalInflow) : 1;
+  let expenseScore = 20;
+  if (expenseRatio <= 0.60) expenseScore = 60;
+  else if (expenseRatio <= 0.80) expenseScore = 45;
+  else if (expenseRatio <= 0.90) expenseScore = 30;
+  else if (expenseRatio > 0.95) expenseScore = 0;
   
-  // Apply deductions for bounces
-  discScore = Math.max(30, discScore - (bounces * 40));
-  
-  // 5. Digital Footprint Score (Max 120)
-  // Evaluates utility payments, UPI penetration, and GST compliance
-  let digScore = 60;
-  if (persona.upiRatio > 0.85) digScore += 20;
-  else if (persona.upiRatio > 0.50) digScore += 10;
-  
-  if (hasGst) {
-    digScore += 25;
-    if (isCustom && customUploadContent.gstStatus && customUploadContent.gstStatus.includes("delays")) {
-      digScore -= 15; // penalty for delayed filings
-    }
+  let discScore = adbScore + expenseScore;
+  if (expenseRatio > 0.95) {
+    discScore = Math.max(10, discScore - 30);
   }
-  if (persona.utilityGrade === "A+" || persona.utilityGrade === "A") {
-    digScore += 15;
-  } else if (persona.utilityGrade === "B+" || persona.utilityGrade === "B") {
-    digScore += 10;
+  
+  discScore = Math.max(20, discScore - (bounces * 45));
+  discScore = Math.min(180, discScore);
+  
+  // 5. Digital Footprint & Verified Credentials Score (Max 120)
+  let digBaseScore = 50;
+  if (persona.upiRatio > 0.85) digBaseScore += 25;
+  else if (persona.upiRatio > 0.50) digBaseScore += 15;
+  
+  if (persona.utilityGrade === "A+" || persona.utilityGrade === "A") digBaseScore += 15;
+  else if (persona.utilityGrade === "B+" || persona.utilityGrade === "B") digBaseScore += 10;
+  
+  let credScore = 10;
+  let hasUnverifiedCritical = false;
+  
+  if (activeCreds.panStatus === "Verified") credScore += 10;
+  else if (activeCreds.panStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  if (activeCreds.aadhaarStatus === "Verified") credScore += 10;
+  else if (activeCreds.aadhaarStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  if (activeCreds.gstStatus === "Verified" || activeCreds.gstStatus === "N/A") credScore += 10;
+  else if (activeCreds.gstStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  let digScore = digBaseScore + credScore;
+  if (hasUnverifiedCritical) {
+    digScore = Math.max(10, digScore - 80);
   }
   digScore = Math.min(120, digScore);
   
-  // Total Score Calculation (Min 300, Max 900)
-  // Scale weights: Sum of Max subscores = 100 + 150 + 150 + 180 + 120 = 700.
-  // We offset it so that a raw sum of 0 yields 300, and a raw sum of 700 yields 900.
-  // Formula: Score = 300 + (RawSum / 700) * 600
   const rawSum = volScore + stabScore + perfScore + discScore + digScore;
-  const pragatiScore = Math.round(300 + (rawSum / 700) * 600);
+  const pragatiScore = Math.round((rawSum / 700) * 1000);
   
-  // Determine credit tier
   let tier = "Average";
   let tierClass = "tier-average";
-  if (pragatiScore >= 780) {
+  if (pragatiScore >= 850) {
     tier = "Excellent";
     tierClass = "tier-excellent";
-  } else if (pragatiScore >= 680) {
-    tier = "Good";
+  } else if (pragatiScore >= 700) {
+    tier = "Low Risk";
     tierClass = "tier-good";
   } else if (pragatiScore >= 550) {
-    tier = "Average";
+    tier = "Medium Risk";
     tierClass = "tier-average";
-  } else {
+  } else if (pragatiScore >= 350) {
     tier = "High Risk";
+    tierClass = "tier-poor";
+  } else {
+    tier = "Very High Risk";
     tierClass = "tier-poor";
   }
   
-  // 6. Explainable AI SHAP/LIME Feature Contributions
-  // Calculate relative positive/negative impact weights to show in underwriter dashboard
-  // We compare each subscore against its 'average default value' (baseline) to show weight contributions
   const baselines = { vol: 70, stab: 100, perf: 95, disc: 110, dig: 80 };
-  
   const shapWeights = [
-    {
-      feature: "Cash Flow Stability",
-      val: stabScore - baselines.stab,
-      label: stabScore >= baselines.stab ? "Consistent Daily Inflows" : "High Income Volatility"
-    },
-    {
-      feature: "Average Daily Balance",
-      val: discScore - baselines.disc,
-      label: discScore >= baselines.disc ? "Healthy Balance Reserves" : "Low Cash Buffer / Overdraft Risk"
-    },
-    {
-      feature: "Digital footprint / GST",
-      val: digScore - baselines.dig,
-      label: digScore >= baselines.dig ? "Strong UPI & GST Filings" : "Limited Digital Integration"
-    },
-    {
-      feature: "Revenue Growth Trend",
-      val: perfScore - baselines.perf,
-      label: perfScore >= baselines.perf ? "Positive Sales Momentum" : "Declining Sales / Inflow Trend"
-    },
-    {
-      feature: "Transaction Vol (UPI count)",
-      val: volScore - baselines.vol,
-      label: volScore >= baselines.vol ? "High Business Velocity" : "Low Transaction Frequency"
-    }
+    { feature: "Cash Flow Stability", val: stabScore - baselines.stab, label: stabScore >= baselines.stab ? "Consistent Daily Inflows" : "High Volatility" },
+    { feature: "Average Daily Balance", val: discScore - baselines.disc, label: discScore >= baselines.disc ? "Healthy Balance Reserves" : "Low Cash Buffer" },
+    { feature: "Digital footprint / GST", val: digScore - baselines.dig, label: digScore >= baselines.dig ? "Strong UPI & GST Filings" : "Limited Digital Integration" },
+    { feature: "Revenue Growth Trend", val: perfScore - baselines.perf, label: perfScore >= baselines.perf ? "Positive Sales Momentum" : "Declining Sales Trend" },
+    { feature: "Transaction Vol (UPI count)", val: volScore - baselines.vol, label: volScore >= baselines.vol ? "High Business Velocity" : "Low Transaction Frequency" }
   ];
   
-  // 7. Dynamic Actionable Optimization Insights
   const insights = [];
-  
-  // Stability Insight
   if (stability < 75) {
-    insights.push({
-      type: "info",
-      title: "Stabilize Weekly Inflows",
-      desc: "Consolidate sales receipts into your main bank account. Avoid keeping bulk earnings in cash to reduce recorded volatility."
-    });
+    insights.push({ type: "info", title: "Stabilize Weekly Inflows", desc: "Consolidate sales receipts into your main bank account." });
   } else {
-    insights.push({
-      type: "positive",
-      title: "Excellent Inflow Consistency",
-      desc: "Your steady daily digital inflows indicate highly predictable revenues, boosting lending confidence."
-    });
+    insights.push({ type: "positive", title: "Excellent Inflow Consistency", desc: "Your steady daily digital inflows indicate highly predictable revenues." });
   }
-  
-  // Balance Insight
   if (adbToInflowRatio < 0.05) {
-    insights.push({
-      type: "info",
-      title: "Increase Cash Reserves",
-      desc: "Aim to maintain at least 5% of monthly inflows (approx. ₹" + Math.round(totalInflow * 0.05).toLocaleString('en-IN') + ") as a daily average balance for 30 consecutive days."
-    });
+    insights.push({ type: "info", title: "Increase Cash Reserves", desc: "Aim to maintain at least 5% of monthly inflows as a daily balance." });
   } else {
-    insights.push({
-      type: "positive",
-      title: "Healthy Cash Buffers",
-      desc: "You keep a strong average daily balance, which buffers against sudden business slowdowns."
-    });
+    insights.push({ type: "positive", title: "Healthy Cash Buffers", desc: "Strong average daily balance buffers against sudden slowdowns." });
   }
-  
-  // Digital Footprint Insight
-  if (!hasGst && totalInflow * 12 > 4000000) {
-    insights.push({
-      type: "info",
-      title: "GST Registration Recommendation",
-      desc: "Your annualized business volume exceeds ₹40 Lakhs. Registering for GST and uploading returns will unlock credit lines up to ₹5 Lakhs."
-    });
-  } else if (hasGst) {
-    insights.push({
-      type: "positive",
-      title: "GST Compliance Bonus",
-      desc: "Active GST status confirms tax compliance and acts as verified collateral for business growth loans."
-    });
+  if (activeCreds.gstStatus === "Verified") {
+    insights.push({ type: "positive", title: "GST Compliance Bonus", desc: "Active GST status confirms tax compliance and acts as verified profile strength." });
   }
-  
-  // Late Payment / Bounce Insight
-  if (bounces > 0) {
-    insights.push({
-      type: "info",
-      title: "Zero Tolerance on Bounces",
-      desc: "Avoid auto-debit failures. Keep sufficient balance 48 hours prior to scheduled EMIs to regain lost discipline score points."
-    });
+  if (hasUnverifiedCritical) {
+    insights.push({ type: "info", title: "Verify KYC Credentials", desc: "Unverified PAN or Aadhaar credentials limit your credit potential." });
+  }
+  if (expenseRatio > 0.90) {
+    insights.push({ type: "info", title: "Optimize Expenditures", desc: "High monthly expenditures (spending " + Math.round(expenseRatio * 100) + "% of inflows) compress your repayment buffer." });
+  } else if (expenseRatio <= 0.70) {
+    insights.push({ type: "positive", title: "Strong Savings Surplus", desc: "Low monthly expenditure ratio leaves a healthy cash buffer for loan repayments." });
   }
   
   return {
@@ -194,7 +203,16 @@ export function evaluateCreditProfile(persona, transactions, customUploadContent
     },
     shapWeights,
     insights,
-    metrics: { adb, totalInflow, growth, stability, bounces }
+    metrics: { 
+      adb: Math.round(adb), 
+      totalInflow: Math.round(totalInflow), 
+      growth, 
+      stability, 
+      bounces, 
+      totalOutflow: Math.round(computedOutflow),
+      expenseRatio: parseFloat(expenseRatio.toFixed(2)),
+      credentials: activeCreds
+    }
   };
 }
 export function getLoanTerms(score, requestAmount) {

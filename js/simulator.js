@@ -44,7 +44,9 @@ export function runStressTest(persona, baseEvaluation, revenueShock, costShock, 
     growthRate: stressedGrowth.toFixed(1) + "%",
     adbStability: Math.round(stressedStability) + "%",
     gstStatus: persona.hasGst ? "Regular" : "None",
-    chequeBounces: Math.max(0, Math.floor(volShock / 20)) // High volatility increases chance of check bounce
+    chequeBounces: Math.max(0, Math.floor(volShock / 20)),
+    totalOutflows: Math.round(estimatedOutflows * 6),
+    credentials: persona.credentials || { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: persona.hasGst ? "Verified" : "N/A", bankLinked: true }
   };
   
   const stressedEvaluation = evaluateCreditProfile(persona, [], simulatedUpload);

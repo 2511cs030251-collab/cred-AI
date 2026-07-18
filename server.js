@@ -62,7 +62,9 @@ const personas = {
     hasGst: false,
     utilityGrade: "A",
     sector: "Micro-Retail",
-    typicalLoanRequest: { amount: 15000, tenure: 3, purpose: "Purchase brass kettles & tea inventory" }
+    typicalLoanRequest: { amount: 15000, tenure: 3, purpose: "Purchase brass kettles & tea inventory" },
+    monthlyOutflow: 18000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   kirana: {
     id: "kirana",
@@ -80,7 +82,9 @@ const personas = {
     gstFilingStatus: "Regular",
     utilityGrade: "A+",
     sector: "Retail Grocery",
-    typicalLoanRequest: { amount: 150000, tenure: 12, purpose: "Stock FMCG and digital billing counter" }
+    typicalLoanRequest: { amount: 150000, tenure: 12, purpose: "Stock FMCG and digital billing counter" },
+    monthlyOutflow: 182000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   },
   gig: {
     id: "gig",
@@ -97,7 +101,9 @@ const personas = {
     hasGst: false,
     utilityGrade: "B",
     sector: "Logistics/Gig Economy",
-    typicalLoanRequest: { amount: 40000, tenure: 6, purpose: "Major vehicle servicing and replacement tires" }
+    typicalLoanRequest: { amount: 40000, tenure: 6, purpose: "Major vehicle servicing and replacement tires" },
+    monthlyOutflow: 38000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   farmer: {
     id: "farmer",
@@ -114,7 +120,9 @@ const personas = {
     hasGst: false,
     utilityGrade: "A",
     sector: "Agriculture",
-    typicalLoanRequest: { amount: 60000, tenure: 9, purpose: "Agro inputs & fertilizer procurement" }
+    typicalLoanRequest: { amount: 60000, tenure: 9, purpose: "Agro inputs & fertilizer procurement" },
+    monthlyOutflow: 12000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   boutique: {
     id: "boutique",
@@ -132,7 +140,9 @@ const personas = {
     gstFilingStatus: "Regular",
     utilityGrade: "B+",
     sector: "Apparel & Design",
-    typicalLoanRequest: { amount: 100000, tenure: 12, purpose: "Procure sewing machines & pattern software" }
+    typicalLoanRequest: { amount: 100000, tenure: 12, purpose: "Procure sewing machines & pattern software" },
+    monthlyOutflow: 98000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   },
   freelancer: {
     id: "freelancer",
@@ -150,7 +160,9 @@ const personas = {
     gstFilingStatus: "Regular",
     utilityGrade: "A",
     sector: "Technology/Freelance",
-    typicalLoanRequest: { amount: 80000, tenure: 12, purpose: "MacBook Pro upgrade and co-working space annual membership" }
+    typicalLoanRequest: { amount: 80000, tenure: 12, purpose: "MacBook Pro upgrade and co-working space annual membership" },
+    monthlyOutflow: 65000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   }
 };
 
@@ -398,8 +410,64 @@ function formatDate(date) {
 // ==========================================
 // SCORING ENGINE LOGIC (Ported from scoring.js)
 // ==========================================
-function evaluateCredit(persona, stability, adb, growth, hasGst, bounces) {
-  const totalInflow = persona.baseMonthlySales;
+function evaluateCredit(persona, stability, adb, growth, hasGst, bounces, credentials = null, totalOutflow = null, transactions = null) {
+  let totalInflow = persona.baseMonthlySales;
+  let computedOutflow = totalOutflow !== null ? totalOutflow : (persona.monthlyOutflow || totalInflow * 0.75);
+  
+  // If transactions are provided, calculate metrics dynamically from transaction history!
+  if (transactions && Array.isArray(transactions) && transactions.length > 0) {
+    let depositSum = 0;
+    let withdrawalSum = 0;
+    let bounceCount = 0;
+    let successCount = 0;
+    
+    // Sort transactions chronologically to calculate running balance
+    const sortedTx = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Reconstruct daily balance
+    let currentBalance = adb || 10000;
+    let dailyBalances = {};
+    
+    sortedTx.forEach(tx => {
+      const txAmount = parseFloat(tx.amount) || 0;
+      if (tx.type === 'Deposit') {
+        depositSum += txAmount;
+        currentBalance += txAmount;
+      } else if (tx.type === 'Withdrawal') {
+        withdrawalSum += txAmount;
+        currentBalance -= txAmount;
+      }
+      
+      const desc = (tx.description || "").toLowerCase();
+      const status = (tx.status || "").toLowerCase();
+      if (desc.includes("bounce") || desc.includes("fail") || desc.includes("returned") || desc.includes("insufficient") || status === 'failed') {
+        bounceCount++;
+      } else {
+        successCount++;
+      }
+      
+      dailyBalances[tx.date] = currentBalance;
+    });
+    
+    // Assume 6 month statement evaluation period
+    totalInflow = depositSum / 6;
+    computedOutflow = withdrawalSum / 6;
+    bounces = bounceCount;
+    
+    // Calculate Average Daily Balance
+    const dates = Object.keys(dailyBalances);
+    if (dates.length > 0) {
+      let sum = 0;
+      dates.forEach(d => sum += dailyBalances[d]);
+      adb = sum / dates.length;
+    } else {
+      adb = currentBalance;
+    }
+    
+    const totalTx = sortedTx.length;
+    const successRatio = totalTx > 0 ? (successCount / totalTx) : 1.0;
+    stability = Math.min(100, Math.round(successRatio * 100));
+  }
   
   // 1. Transaction Volume Score (Max 100)
   let volScore = 45;
@@ -419,25 +487,58 @@ function evaluateCredit(persona, stability, adb, growth, hasGst, bounces) {
   else if (growth > -10) perfScore = 70;
   else perfScore = 40;
   
-  // 4. Financial Discipline Score (Max 180)
+  // 4. Financial Discipline & Expenditure (Max 180)
+  // ADB component (Max 120)
   let adbToInflowRatio = totalInflow > 0 ? (adb / totalInflow) : 0;
-  let discScore = 100;
-  if (adbToInflowRatio > 0.20) discScore = 160;
-  else if (adbToInflowRatio > 0.10) discScore = 140;
-  else if (adbToInflowRatio > 0.05) discScore = 110;
-  else if (adbToInflowRatio > 0.02) discScore = 85;
-  else discScore = 55;
+  let adbScore = 40;
+  if (adbToInflowRatio > 0.20) adbScore = 120;
+  else if (adbToInflowRatio > 0.10) adbScore = 100;
+  else if (adbToInflowRatio > 0.05) adbScore = 80;
+  else if (adbToInflowRatio > 0.02) adbScore = 60;
   
-  discScore = Math.max(30, discScore - (bounces * 40));
+  // Expenditure / Inflow component (Max 60)
+  const expenseRatio = totalInflow > 0 ? (computedOutflow / totalInflow) : 1;
+  let expenseScore = 20;
+  if (expenseRatio <= 0.60) expenseScore = 60;
+  else if (expenseRatio <= 0.80) expenseScore = 45;
+  else if (expenseRatio <= 0.90) expenseScore = 30;
+  else if (expenseRatio > 0.95) expenseScore = 0;
   
-  // 5. Digital Footprint Score (Max 120)
-  let digScore = 60;
-  if (persona.upiRatio > 0.85) digScore += 20;
-  else if (persona.upiRatio > 0.50) digScore += 10;
+  let discScore = adbScore + expenseScore;
+  if (expenseRatio > 0.95) {
+    discScore = Math.max(10, discScore - 30); // Expenditure penalty
+  }
   
-  if (hasGst) digScore += 25;
-  if (persona.utilityGrade === "A+" || persona.utilityGrade === "A") digScore += 15;
-  else if (persona.utilityGrade === "B+" || persona.utilityGrade === "B") digScore += 10;
+  discScore = Math.max(20, discScore - (bounces * 45));
+  discScore = Math.min(180, discScore);
+  
+  // 5. Digital Footprint & Verified Credentials Score (Max 120)
+  let digBaseScore = 50;
+  if (persona.upiRatio > 0.85) digBaseScore += 25;
+  else if (persona.upiRatio > 0.50) digBaseScore += 15;
+  
+  if (persona.utilityGrade === "A+" || persona.utilityGrade === "A") digBaseScore += 15;
+  else if (persona.utilityGrade === "B+" || persona.utilityGrade === "B") digBaseScore += 10;
+  
+  let credScore = 10;
+  let hasUnverifiedCritical = false;
+  
+  const activeCreds = credentials || persona.credentials || { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: hasGst ? "Verified" : "N/A", bankLinked: true };
+  
+  if (activeCreds.panStatus === "Verified") credScore += 10;
+  else if (activeCreds.panStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  if (activeCreds.aadhaarStatus === "Verified") credScore += 10;
+  else if (activeCreds.aadhaarStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  if (activeCreds.gstStatus === "Verified" || activeCreds.gstStatus === "N/A") credScore += 10;
+  else if (activeCreds.gstStatus === "Unverified") hasUnverifiedCritical = true;
+  
+  let digScore = digBaseScore + credScore;
+  if (hasUnverifiedCritical) {
+    digScore = Math.max(10, digScore - 80); // Fraud penalty
+  }
+  digScore = Math.min(120, digScore);
   
   const rawSum = volScore + stabScore + perfScore + discScore + digScore;
   const pragatiScore = Math.round((rawSum / 700) * 1000);
@@ -481,11 +582,42 @@ function evaluateCredit(persona, stability, adb, growth, hasGst, bounces) {
   } else {
     insights.push({ type: "positive", title: "Healthy Cash Buffers", desc: "Strong average daily balance buffers against sudden slowdowns." });
   }
-  if (hasGst) {
+  if (activeCreds.gstStatus === "Verified") {
     insights.push({ type: "positive", title: "GST Compliance Bonus", desc: "Active GST status confirms tax compliance and acts as verified profile strength." });
   }
+  if (hasUnverifiedCritical) {
+    insights.push({ type: "info", title: "Verify KYC Credentials", desc: "Unverified PAN or Aadhaar credentials limit your credit potential and increase risk rating." });
+  }
+  if (expenseRatio > 0.90) {
+    insights.push({ type: "info", title: "Optimize Expenditures", desc: "High monthly expenditures (spending " + Math.round(expenseRatio * 100) + "% of inflows) compress your repayment buffer." });
+  } else if (expenseRatio <= 0.70) {
+    insights.push({ type: "positive", title: "Strong Savings Surplus", desc: "Low monthly expenditure ratio leaves a healthy cash buffer for loan repayments." });
+  }
   
-  return { pragatiScore, tier, tierClass, subscores: { volume: Math.round((volScore/100)*100), stability: Math.round((stabScore/150)*100), performance: Math.round((perfScore/150)*100), discipline: Math.round((discScore/180)*100), digital: Math.round((digScore/120)*100) }, shapWeights, insights, metrics: { adb, totalInflow, growth, stability, bounces } };
+  return { 
+    pragatiScore, 
+    tier, 
+    tierClass, 
+    subscores: { 
+      volume: Math.round((volScore/100)*100), 
+      stability: Math.round((stabScore/150)*100), 
+      performance: Math.round((perfScore/150)*100), 
+      discipline: Math.round((discScore/180)*100), 
+      digital: Math.round((digScore/120)*100) 
+    }, 
+    shapWeights, 
+    insights, 
+    metrics: { 
+      adb: Math.round(adb), 
+      totalInflow: Math.round(totalInflow), 
+      growth, 
+      stability, 
+      bounces, 
+      totalOutflow: Math.round(computedOutflow),
+      expenseRatio: parseFloat(expenseRatio.toFixed(2)),
+      credentials: activeCreds
+    } 
+  };
 }
 
 // ==========================================
@@ -511,12 +643,14 @@ app.get('/api/borrowers/:id/transactions', (req, res) => {
 
 // 3. Compute Score
 app.post('/api/score', (req, res) => {
-  const { personaId, customUploadContent } = req.body;
+  const { personaId, customUploadContent, transactions, credentials, totalOutflow } = req.body;
   const persona = resolvePersona(personaId);
   if (!persona) return res.status(404).json({ error: 'Persona not found' });
   
   // Scoring parameters (with defaults or upload overrides)
   let stability = 80, adb = 2000, growth = 5.0, hasGst = persona.hasGst, bounces = 0;
+  let computedOutflow = totalOutflow !== undefined && totalOutflow !== null ? totalOutflow : persona.monthlyOutflow;
+  let activeCreds = credentials || persona.credentials;
   
   if (personaId === 'vendor') { stability = 94; adb = 1400; growth = 6.2; }
   else if (personaId === 'kirana') { stability = 91; adb = 24500; growth = 8.5; }
@@ -531,9 +665,20 @@ app.post('/api/score', (req, res) => {
     growth = parseFloat(customUploadContent.growthRate);
     hasGst = customUploadContent.gstStatus && !customUploadContent.gstStatus.includes("None");
     bounces = customUploadContent.chequeBounces || 0;
+    computedOutflow = customUploadContent.totalOutflows ? (customUploadContent.totalOutflows / 6) : (customUploadContent.monthlyOutflow || customUploadContent.monthlyExpenses || computedOutflow);
+    if (customUploadContent.credentials) {
+      activeCreds = customUploadContent.credentials;
+    } else {
+      activeCreds = {
+        panStatus: customUploadContent.panStatus || (customUploadContent.panVerified ? "Verified" : "Unverified"),
+        aadhaarStatus: customUploadContent.aadhaarStatus || (customUploadContent.aadhaarVerified ? "Verified" : "Unverified"),
+        gstStatus: customUploadContent.gstStatus ? (customUploadContent.gstStatus.includes("Verified") ? "Verified" : "Unverified") : (hasGst ? "Verified" : "N/A"),
+        bankLinked: customUploadContent.bankLinked !== undefined ? customUploadContent.bankLinked : true
+      };
+    }
   }
   
-  const evalResults = evaluateCredit(persona, stability, adb, growth, hasGst, bounces);
+  const evalResults = evaluateCredit(persona, stability, adb, growth, hasGst, bounces, activeCreds, computedOutflow, transactions);
   res.json(evalResults);
 });
 
@@ -592,7 +737,9 @@ app.post('/api/loans/apply', (req, res) => {
       utilityGrade: customDetails.utilityGrade,
       sector: customDetails.sector,
       businessName: customDetails.businessName || persona.businessName,
-      roleName: customDetails.roleName || persona.roleName
+      roleName: customDetails.roleName || persona.roleName,
+      monthlyOutflow: customDetails.monthlyOutflow !== undefined ? customDetails.monthlyOutflow : (customDetails.monthlyExpenses || persona.monthlyOutflow),
+      credentials: customDetails.credentials || persona.credentials
     };
   }
   const bank = collaboratedBanks.find(b => b.id === bankId);
@@ -612,7 +759,7 @@ app.post('/api/loans/apply', (req, res) => {
   // Calculate Debt service DSCR
   const inflow = persona.baseMonthlySales;
   const assumedEmi = (requestedAmount * (1 + (interestRate/100) * (tenureMonths/12))) / tenureMonths;
-  const operatingOutflows = inflow * 0.82;
+  const operatingOutflows = persona.monthlyOutflow !== undefined ? persona.monthlyOutflow : inflow * 0.82;
   const freeCashFlow = inflow - operatingOutflows;
   const dscr = parseFloat(((freeCashFlow + assumedEmi) / assumedEmi).toFixed(2));
   
@@ -684,6 +831,8 @@ app.post('/api/underwriter/applications/:id/stress', (req, res) => {
   
   // Base parameters
   let stability = 80, adb = 2000, growth = 5.0;
+  let monthlyOutflow = persona ? (persona.monthlyOutflow || persona.baseMonthlySales * 0.75) : 15000;
+  let credentials = persona ? (persona.credentials || { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: persona.hasGst ? "Verified" : "N/A" }) : null;
   
   if (loanApp.customDetails) {
     const cd = loanApp.customDetails;
@@ -696,11 +845,15 @@ app.post('/api/underwriter/applications/:id/stress', (req, res) => {
       utilityGrade: cd.utilityGrade,
       sector: cd.sector,
       businessName: cd.businessName,
-      roleName: cd.roleName
+      roleName: cd.roleName,
+      monthlyOutflow: cd.monthlyOutflow !== undefined ? cd.monthlyOutflow : (cd.monthlyExpenses || (cd.baseMonthlySales * 0.75)),
+      credentials: cd.credentials || (persona ? persona.credentials : null)
     };
     stability = 85;
     adb = cd.averageDailyBalance;
     growth = 6.5;
+    monthlyOutflow = persona.monthlyOutflow;
+    credentials = persona.credentials;
   } else if (persona) {
     if (loanApp.personaId === 'vendor') { stability = 94; adb = 1400; growth = 6.2; }
     else if (loanApp.personaId === 'kirana') { stability = 91; adb = 24500; growth = 8.5; }
@@ -708,6 +861,8 @@ app.post('/api/underwriter/applications/:id/stress', (req, res) => {
     else if (loanApp.personaId === 'farmer') { stability = 52; adb = 12500; growth = 4.8; }
     else if (loanApp.personaId === 'boutique') { stability = 88; adb = 29000; growth = 12.4; }
     else if (loanApp.personaId === 'freelancer') { stability = 78; adb = 18000; growth = 9.8; }
+    monthlyOutflow = persona.monthlyOutflow;
+    credentials = persona.credentials;
   }
 
   // Apply shocks
@@ -715,7 +870,7 @@ app.post('/api/underwriter/applications/:id/stress', (req, res) => {
   const costFactor = 1 + (costShock / 100);
   
   const stressedInflow = Math.max(1000, persona.baseMonthlySales * revFactor);
-  const estimatedOutflows = (persona.baseMonthlySales * 0.82) * costFactor;
+  const estimatedOutflows = (monthlyOutflow) * costFactor;
   const monthlySavings = stressedInflow - estimatedOutflows;
   
   let stressedAdb = adb;
@@ -730,7 +885,7 @@ app.post('/api/underwriter/applications/:id/stress', (req, res) => {
   const bounces = Math.max(0, Math.floor(volShock / 20));
   
   // Recompute score
-  const stressedScoring = evaluateCredit(persona, stressedStability, stressedAdb, stressedGrowth, persona.hasGst, bounces);
+  const stressedScoring = evaluateCredit(persona, stressedStability, stressedAdb, stressedGrowth, persona.hasGst, bounces, credentials, estimatedOutflows);
   
   // Recalculate DSCR
   const assumedEmi = (loanApp.requestedAmount * (1 + (loanApp.interestRate/100) * (loanApp.tenureMonths/12))) / loanApp.tenureMonths;

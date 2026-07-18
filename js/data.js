@@ -18,16 +18,12 @@ export const personas = {
     sector: "Micro-Retail",
     typicalLoanRequest: {
       amount: 15000,
-      tenure: 3, // months
+      tenure: 3,
       purpose: "Purchase high-quality brass kettles and bulk tea/milk inventory for winter rush"
     },
-    metrics: {
-      adb: 1400,
-      monthlyInflow: 24800,
-      inflowStability: 94, // % consistency
-      growthTrend: 6.2, // MoM %
-      repaymentCapacity: 88 // Score out of 100
-    }
+    metrics: { adb: 1400, monthlyInflow: 24800, inflowStability: 94, growthTrend: 6.2, repaymentCapacity: 88 },
+    monthlyOutflow: 18000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   kirana: {
     id: "kirana",
@@ -50,13 +46,9 @@ export const personas = {
       tenure: 12,
       purpose: "Inventory expansion to stock fast-moving consumer goods and digital billing counter setup"
     },
-    metrics: {
-      adb: 24500,
-      monthlyInflow: 225000,
-      inflowStability: 91,
-      growthTrend: 8.5,
-      repaymentCapacity: 92
-    }
+    metrics: { adb: 24500, monthlyInflow: 225000, inflowStability: 91, growthTrend: 8.5, repaymentCapacity: 92 },
+    monthlyOutflow: 182000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   },
   gig: {
     id: "gig",
@@ -67,7 +59,7 @@ export const personas = {
     location: "Koramangala, Bengaluru",
     description: "Full-time rideshare driver registered on Uber and Ola. Receives weekly digital payouts from platforms. Maintains high rating (4.86/5) and constant vehicle maintenance spend.",
     baseMonthlySales: 45000,
-    upiRatio: 0.90, // driver gets paid digitally via platform wallet/UPI
+    upiRatio: 0.90,
     avgDailyTxCount: 15,
     averageDailyBalance: 3200,
     hasGst: false,
@@ -78,13 +70,9 @@ export const personas = {
       tenure: 6,
       purpose: "Major vehicle servicing and replacement of all four tires before monsoon"
     },
-    metrics: {
-      adb: 3200,
-      monthlyInflow: 46200,
-      inflowStability: 85,
-      growthTrend: 3.1,
-      repaymentCapacity: 79
-    }
+    metrics: { adb: 3200, monthlyInflow: 46200, inflowStability: 85, growthTrend: 3.1, repaymentCapacity: 79 },
+    monthlyOutflow: 38000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   farmer: {
     id: "farmer",
@@ -94,10 +82,10 @@ export const personas = {
     roleName: "Smallholder Farmer",
     location: "Anand, Gujarat",
     description: "Cultivates cotton and groundnuts on 3 acres. Cash flow is highly seasonal with large cash/digital inflows post-harvest. Receives e-NAM payouts and PM-KISAN quarterly subsidies.",
-    baseMonthlySales: 18000, // annualized average
+    baseMonthlySales: 18000,
     upiRatio: 0.40,
-    avgDailyTxCount: 2, // low frequency but high ticket
-    averageDailyBalance: 12500, // high post harvest, low sowing
+    avgDailyTxCount: 2,
+    averageDailyBalance: 12500,
     hasGst: false,
     utilityGrade: "A",
     sector: "Agriculture",
@@ -106,13 +94,9 @@ export const personas = {
       tenure: 9,
       purpose: "Fertilizer purchase and high-yield seed procurement for upcoming Kharif sowing season"
     },
-    metrics: {
-      adb: 12500,
-      monthlyInflow: 18400,
-      inflowStability: 52, // seasonal cash flow volatility
-      growthTrend: 4.8,
-      repaymentCapacity: 75
-    }
+    metrics: { adb: 12500, monthlyInflow: 18400, inflowStability: 52, growthTrend: 4.8, repaymentCapacity: 75 },
+    monthlyOutflow: 12000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "N/A", bankLinked: true }
   },
   boutique: {
     id: "boutique",
@@ -135,13 +119,34 @@ export const personas = {
       tenure: 12,
       purpose: "Procurement of specialized sewing machines and digital sewing pattern software"
     },
-    metrics: {
-      adb: 29000,
-      monthlyInflow: 138000,
-      inflowStability: 88,
-      growthTrend: 12.4,
-      repaymentCapacity: 86
-    }
+    metrics: { adb: 29000, monthlyInflow: 138000, inflowStability: 88, growthTrend: 12.4, repaymentCapacity: 86 },
+    monthlyOutflow: 98000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
+  },
+  freelancer: {
+    id: "freelancer",
+    name: "Aditya Mehta",
+    avatar: "💻",
+    businessName: "Aditya Digital Solutions",
+    roleName: "Freelance Web Developer",
+    location: "Koregaon Park, Pune",
+    description: "Full-stack freelancer building web apps for startups. Receives project-based payments via UPI and bank transfers. Has irregular but growing income with strong digital presence.",
+    baseMonthlySales: 95000,
+    upiRatio: 0.85,
+    avgDailyTxCount: 8,
+    averageDailyBalance: 18000,
+    hasGst: true,
+    gstFilingStatus: "Regular (Quarterly GSTR-1 filed)",
+    utilityGrade: "A",
+    sector: "Technology/Freelance",
+    typicalLoanRequest: {
+      amount: 80000,
+      tenure: 12,
+      purpose: "MacBook Pro upgrade and co-working space annual membership"
+    },
+    metrics: { adb: 18000, monthlyInflow: 97000, inflowStability: 78, growthTrend: 9.8, repaymentCapacity: 84 },
+    monthlyOutflow: 65000,
+    credentials: { panStatus: "Verified", aadhaarStatus: "Verified", gstStatus: "Verified", bankLinked: true }
   }
 };
 

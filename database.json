@@ -1,6 +1,36 @@
 {
   "applications": [
     {
+      "id": "app_1784341893923",
+      "personaId": "vendor",
+      "borrowerName": "Ramesh Kumar",
+      "businessName": "Ramesh Masala Chai Stall",
+      "roleName": "Street Vendor",
+      "location": "Chawri Bazar, Old Delhi",
+      "requestedAmount": 15000,
+      "tenureMonths": 12,
+      "purpose": "Purchase brass kettles & tea inventory",
+      "score": 943,
+      "bankId": "axis",
+      "bankName": "Axis Bank",
+      "interestRate": 9.5,
+      "repaymentMode": "Monthly NACH / Fortnightly UPI",
+      "status": "Pending",
+      "dscr": 159.54,
+      "riskStatus": "Low",
+      "createdAt": "2026-07-18T02:31:33.923Z",
+      "customDetails": {
+        "baseMonthlySales": 235000,
+        "upiRatio": 0.95,
+        "averageDailyBalance": 31250,
+        "hasGst": true,
+        "utilityGrade": "A",
+        "sector": "Micro-Retail",
+        "businessName": "Ramesh Masala Chai Stall",
+        "roleName": "Street Vendor"
+      }
+    },
+    {
       "id": "app_1784293973376",
       "personaId": "freelancer",
       "borrowerName": "Aditya Mehta",
